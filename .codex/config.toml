@@ -1,0 +1,55 @@
+# Project-scoped Codex configuration for code-agent-harness.
+# Codex loads project config only when the project is trusted.
+# Keep personal model preferences in ~/.codex/config.toml, not here.
+
+profile = "agent-harness-xhigh"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+model_reasoning_effort = "xhigh"
+model_verbosity = "medium"
+project_doc_max_bytes = 65536
+
+[sandbox_workspace_write]
+network_access = false
+
+[features]
+codex_hooks = true
+
+[agents]
+max_threads = 4
+max_depth = 1
+job_max_runtime_seconds = 1800
+
+[profiles.agent-harness-xhigh]
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+model_verbosity = "medium"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+[profiles.agent-harness-research]
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+model_verbosity = "medium"
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+web_search = "live"
+
+[profiles.agent-harness-review]
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+model_verbosity = "medium"
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+web_search = "cached"
+
+[profiles.agent-harness-implementation]
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+model_verbosity = "medium"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "cached"

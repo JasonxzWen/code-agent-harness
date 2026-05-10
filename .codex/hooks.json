@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"$(git rev-parse --show-toplevel)/.codex/hooks/run_hook.ps1\" dangerous_operation_guard.py",
+            "timeout": 10,
+            "statusMessage": "Checking dangerous operation guard"
+          }
+        ]
+      }
+    ]
+  }
+}

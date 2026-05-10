@@ -1,0 +1,15 @@
+{
+  "name": "@code-agent-harness/tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@code-agent-harness/core": "workspace:*",
+    "execa": "^9.6.0",
+    "simple-git": "^3.28.0",
+    "zod": "^4.1.5"
+  }
+}

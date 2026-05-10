@@ -1,0 +1,19 @@
+{
+  "name": "@code-agent-harness/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "agent-harness": "./src/main.tsx"
+  },
+  "scripts": {
+    "dev": "bun run src/main.tsx"
+  },
+  "dependencies": {
+    "@code-agent-harness/core": "workspace:*",
+    "@code-agent-harness/providers": "workspace:*",
+    "@code-agent-harness/tools": "workspace:*",
+    "ink": "^6.2.3",
+    "react": "^19.2.0"
+  }
+}

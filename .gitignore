@@ -1,0 +1,11 @@
+.agent-harness/
+coverage/
+dist/
+node_modules/
+*.log
+.codex/AGENTS.md
+private-codex/
+public-repo/
+code_agent_harness_ai_operating_environment_v_1.md
+README.template.md
+CHANGELOG.template.md

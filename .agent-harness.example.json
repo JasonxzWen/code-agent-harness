@@ -1,0 +1,7 @@
+{
+  "repoRoot": ".",
+  "provider": "mock",
+  "model": "mock-local",
+  "maxSteps": 8,
+  "traceDir": ".agent-harness/traces"
+}

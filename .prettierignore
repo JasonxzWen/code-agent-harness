@@ -1,0 +1,7 @@
+.agent-harness
+.git
+coverage
+dist
+node_modules
+bun.lockb
+bun.lock

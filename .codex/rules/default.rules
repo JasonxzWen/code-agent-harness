@@ -1,0 +1,101 @@
+# Codex exec policy rules for this repository.
+# Rules control commands Codex can run outside the sandbox.
+# Project-local rules load only when the project .codex layer is trusted.
+
+prefix_rule(
+  pattern = ["git", "status"],
+  decision = "allow",
+  justification = "Read-only repository inspection is safe.",
+  match = ["git status", "git status --short"],
+)
+
+prefix_rule(
+  pattern = ["git", "diff"],
+  decision = "allow",
+  justification = "Read-only diff inspection is required for review.",
+  match = ["git diff", "git diff --stat"],
+)
+
+prefix_rule(
+  pattern = ["git", "log"],
+  decision = "allow",
+  justification = "Read-only history inspection is safe.",
+  match = ["git log --oneline -n 5"],
+)
+
+prefix_rule(
+  pattern = ["rg"],
+  decision = "allow",
+  justification = "Fast text search is safe and useful for repo inspection.",
+  match = ["rg agent", "rg --files"],
+)
+
+prefix_rule(
+  pattern = ["bun", "run", ["format:check", "lint", "typecheck", "test", "smoke", "quality"]],
+  decision = "allow",
+  justification = "Project quality gates are safe and required.",
+  match = ["bun run lint", "bun run typecheck", "bun run test", "bun run smoke", "bun run quality"],
+)
+
+prefix_rule(
+  pattern = ["bun", "install"],
+  decision = "prompt",
+  justification = "Dependency installation changes the workspace and may access the network.",
+  match = ["bun install", "bun install --frozen-lockfile"],
+)
+
+prefix_rule(
+  pattern = ["npm", "install"],
+  decision = "prompt",
+  justification = "Dependency installation requires explicit approval.",
+  match = ["npm install"],
+)
+
+prefix_rule(
+  pattern = ["git", "commit"],
+  decision = "forbidden",
+  justification = "Commits require explicit human release control.",
+  match = ["git commit -m init"],
+)
+
+prefix_rule(
+  pattern = ["git", "push"],
+  decision = "forbidden",
+  justification = "Pushing to remotes is never agent-autonomous in this repository.",
+  match = ["git push", "git push origin main"],
+)
+
+prefix_rule(
+  pattern = ["rm"],
+  decision = "forbidden",
+  justification = "Deletion commands are blocked by repository policy.",
+  match = ["rm -rf dist", "rm package.json"],
+)
+
+prefix_rule(
+  pattern = ["sudo"],
+  decision = "forbidden",
+  justification = "Privilege escalation is not allowed.",
+  match = ["sudo rm -rf /"],
+)
+
+prefix_rule(
+  pattern = ["curl"],
+  decision = "forbidden",
+  justification = "Network downloads are blocked in project-local automation.",
+  match = ["curl https://example.com"],
+)
+
+prefix_rule(
+  pattern = ["wget"],
+  decision = "forbidden",
+  justification = "Network downloads are blocked in project-local automation.",
+  match = ["wget https://example.com"],
+)
+
+prefix_rule(
+  pattern = ["ssh"],
+  decision = "forbidden",
+  justification = "SSH access is outside repository development scope.",
+  match = ["ssh user@example.com"],
+)
