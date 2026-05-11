@@ -1,13 +1,23 @@
 import path from "node:path";
-import { createJsonlEventLogger, runAgentTask } from "@code-agent-harness/core";
-import type { TraceEvent } from "@code-agent-harness/core";
+import {
+  createJsonlEventLogger,
+  redactJson,
+  runAgentTask
+} from "@code-agent-harness/core";
+import type {
+  JsonObject,
+  PermissionDecision,
+  PermissionGate,
+  PermissionRequest,
+  TraceEvent
+} from "@code-agent-harness/core";
 import {
   createMockProvider,
   createOpenAIProviderFromEnv
 } from "@code-agent-harness/providers";
 import { createDefaultToolRegistry } from "@code-agent-harness/tools";
 import { Box, Text, useApp, useInput } from "ink";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export interface AppProps {
   repoRoot: string;
@@ -24,11 +34,42 @@ export function App({
   const [draft, setDraft] = useState(initialTask ?? "");
   const [task, setTask] = useState<string | undefined>(initialTask);
   const [events, setEvents] = useState<TraceEvent[]>([]);
+  const [pendingPermission, setPendingPermission] = useState<PermissionRequest>();
   const [finalAnswer, setFinalAnswer] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const permissionResolver = useRef<
+    ((decision: PermissionDecision) => void) | undefined
+  >(undefined);
   const tools = useMemo(() => createDefaultToolRegistry(), []);
+  const permissionGate = useMemo<PermissionGate>(
+    () => ({
+      check(request) {
+        setPendingPermission(request);
+        return new Promise((resolve) => {
+          permissionResolver.current = (decision) => {
+            permissionResolver.current = undefined;
+            setPendingPermission(undefined);
+            resolve(decision);
+          };
+        });
+      }
+    }),
+    []
+  );
 
   useInput((input, key) => {
+    if (pendingPermission !== undefined) {
+      if (input.toLowerCase() === "y" || input.toLowerCase() === "a") {
+        permissionResolver.current?.("allow");
+        return;
+      }
+
+      if (input.toLowerCase() === "n" || input.toLowerCase() === "d" || key.escape) {
+        permissionResolver.current?.("deny");
+        return;
+      }
+    }
+
     if (task !== undefined) {
       return;
     }
@@ -71,6 +112,7 @@ export function App({
       provider,
       tools,
       logger,
+      permissionGate,
       onEvent: (event) => {
         setEvents((current) => [...current, event].slice(-8));
       }
@@ -82,7 +124,7 @@ export function App({
       }
       exit();
     });
-  }, [exit, live, repoRoot, task, tools]);
+  }, [exit, live, permissionGate, repoRoot, task, tools]);
 
   if (task === undefined) {
     return (
@@ -107,8 +149,26 @@ export function App({
           {event.type} {JSON.stringify(event.data)}
         </Text>
       ))}
+      {pendingPermission !== undefined ? (
+        <Box flexDirection="column">
+          <Text color="yellow">
+            Permission: {pendingPermission.toolName}{" "}
+            {summarizeJson(pendingPermission.input)}
+          </Text>
+          <Text>Approve? y/N</Text>
+        </Box>
+      ) : null}
       {finalAnswer !== undefined ? <Text color="green">{finalAnswer}</Text> : null}
       {error !== undefined ? <Text color="red">{error}</Text> : null}
     </Box>
   );
+}
+
+function summarizeJson(input: JsonObject): string {
+  const serialized = JSON.stringify(redactJson(input));
+  if (serialized.length <= 120) {
+    return serialized;
+  }
+
+  return `${serialized.slice(0, 117)}...`;
 }

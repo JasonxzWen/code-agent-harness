@@ -21,20 +21,20 @@ Live smoke tests
 
 ## v0.1 required tests
 
-| Area            | Required tests                               |
-| --------------- | -------------------------------------------- |
-| Config          | defaults, invalid config, override order     |
-| Path policy     | inside root, outside root, symlink escape    |
-| Secret policy   | `.env`, private keys, `.npmrc` denied        |
-| File reading    | text read, truncation, binary denial         |
-| Listing         | ignored paths, stable order                  |
-| Search          | snippets, result limit, ignored paths        |
-| Command policy  | allowed, denied, shell string denied         |
-| Permission gate | allow, ask, deny                             |
-| Tool registry   | unknown tool, invalid input, valid execution |
-| Agent loop      | tool call → result → final                   |
-| Event logger    | writes JSONL, redacts secrets                |
-| TUI smoke       | renders initial state                        |
+| Area            | Required tests                                              |
+| --------------- | ----------------------------------------------------------- |
+| Config          | defaults, invalid config, override order                    |
+| Path policy     | inside root, outside root, symlink escape                   |
+| Secret policy   | `.env`, private keys, `.npmrc` denied                       |
+| File reading    | text read, truncation, binary denial                        |
+| Listing         | ignored paths, stable order                                 |
+| Search          | snippets, result limit, ignored paths                       |
+| Command policy  | allowlist command, write command denied, shell token denied |
+| Permission gate | request event, decision event, denied tool not executed     |
+| Tool registry   | unknown tool, invalid input, extra input, valid execution   |
+| Agent loop      | tool call → result → final                                  |
+| Event logger    | writes JSONL, redacts secrets                               |
+| TUI smoke       | renders initial state                                       |
 
 ## CI
 

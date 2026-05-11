@@ -11,28 +11,35 @@ import {
   toPosixPath
 } from "./policies";
 
-const ListFilesInputSchema = z.object({
-  path: z.string().default("."),
-  maxResults: z.number().int().min(1).max(1000).default(200)
-});
+const ListFilesInputSchema = z
+  .object({
+    path: z.string().default("."),
+    maxResults: z.number().int().min(1).max(1000).default(200)
+  })
+  .strict();
 
-const ReadFileInputSchema = z.object({
-  path: z.string().min(1),
-  maxBytes: z.number().int().min(1).max(100_000).default(20_000)
-});
+const ReadFileInputSchema = z
+  .object({
+    path: z.string().min(1),
+    maxBytes: z.number().int().min(1).max(100_000).default(20_000)
+  })
+  .strict();
 
-const SearchRepoInputSchema = z.object({
-  query: z.string().min(1),
-  path: z.string().default("."),
-  maxResults: z.number().int().min(1).max(100).default(20),
-  contextLines: z.number().int().min(0).max(5).default(1)
-});
+const SearchRepoInputSchema = z
+  .object({
+    query: z.string().min(1),
+    path: z.string().default("."),
+    maxResults: z.number().int().min(1).max(100).default(20),
+    contextLines: z.number().int().min(0).max(5).default(1)
+  })
+  .strict();
 
-const GitStatusInputSchema = z.object({});
+const GitStatusInputSchema = z.object({}).strict();
 
 export const listFilesTool: ToolDefinition<z.infer<typeof ListFilesInputSchema>> = {
   name: "list_files",
   description: "List safe repository files with stable ordering and bounded output.",
+  defaultPermission: "allow",
   inputSchema: ListFilesInputSchema,
   inputJsonSchema: objectJsonSchema({
     path: stringSchema,
@@ -50,6 +57,7 @@ export const listFilesTool: ToolDefinition<z.infer<typeof ListFilesInputSchema>>
 export const readFileTool: ToolDefinition<z.infer<typeof ReadFileInputSchema>> = {
   name: "read_file",
   description: "Read a safe text file from the repository with explicit truncation.",
+  defaultPermission: "allow",
   inputSchema: ReadFileInputSchema,
   inputJsonSchema: objectJsonSchema(
     {
@@ -80,6 +88,7 @@ export const readFileTool: ToolDefinition<z.infer<typeof ReadFileInputSchema>> =
 export const searchRepoTool: ToolDefinition<z.infer<typeof SearchRepoInputSchema>> = {
   name: "search_repo",
   description: "Search safe text files and return bounded line snippets.",
+  defaultPermission: "allow",
   inputSchema: SearchRepoInputSchema,
   inputJsonSchema: objectJsonSchema(
     {
@@ -141,6 +150,7 @@ export const searchRepoTool: ToolDefinition<z.infer<typeof SearchRepoInputSchema
 export const gitStatusTool: ToolDefinition<z.infer<typeof GitStatusInputSchema>> = {
   name: "git_status",
   description: "Return read-only git status information for the repository.",
+  defaultPermission: "allow",
   inputSchema: GitStatusInputSchema,
   inputJsonSchema: objectJsonSchema({}),
   async execute(_input, context) {

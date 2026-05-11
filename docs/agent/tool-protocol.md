@@ -11,7 +11,13 @@ export interface AgentTool<TInput, TOutput> {
   inputSchema: z.ZodType<TInput>;
   outputSchema: z.ZodType<TOutput>;
   defaultPermission: ToolPermissionMode;
+  evaluatePolicy?(input: TInput, context: ToolExecutionContext): Promise<void> | void;
   execute(input: TInput, context: ToolExecutionContext): Promise<ToolResult<TOutput>>;
+}
+
+export interface ToolRegistry {
+  prepare(call: ToolCall, context: ToolExecutionContext): Promise<ToolPreflightResult>;
+  execute(call: ToolCall, context: ToolExecutionContext): Promise<ToolExecutionResult>;
 }
 
 export interface ToolResult<TOutput> {
@@ -44,6 +50,8 @@ export interface ToolResult<TOutput> {
 - Outputs are structured and bounded.
 - Errors are structured and actionable.
 - Permission is checked before execution.
+- Permissioned tools are preflighted before the permission prompt, so approval
+  cannot override deterministic command or path policy.
 - Tool output includes truncation metadata.
 
 ## Strict validation requirement
@@ -59,6 +67,9 @@ JSON schema: additionalProperties: false
 
 Validation failures must return `tool_validation_error` and must not reach path,
 command, permission, or execution logic.
+
+Permission request and decision events are emitted as `permission.requested` and
+`permission.decided` JSONL trace events.
 
 ## Implementation blocker
 

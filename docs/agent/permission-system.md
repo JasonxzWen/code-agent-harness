@@ -4,6 +4,18 @@
 
 ```ts
 export type PermissionDecision = "allow" | "ask" | "deny";
+
+export interface PermissionRequest {
+  runId: string;
+  callId: string;
+  toolName: string;
+  input: JsonObject;
+  reason?: string;
+}
+
+export interface PermissionGate {
+  check(request: PermissionRequest): Promise<PermissionDecision>;
+}
 ```
 
 ## v0.1 defaults
@@ -20,9 +32,11 @@ export type PermissionDecision = "allow" | "ask" | "deny";
 }
 ```
 
-## Pre-implementation contract
+## Runtime contract
 
-Permission handling is a v0.1 release blocker, not a later enhancement.
+Permission handling is enforced by `packages/core` before permissioned tool
+execution. The CLI supplies a `PermissionGate` adapter for interactive
+approve/deny input, but tool execution remains in `packages/tools`.
 
 Every tool call must pass through this sequence before execution:
 
@@ -50,15 +64,15 @@ Required controls:
 
 ## Command safety
 
-Use command + args, not shell strings.
+Use argv arrays, not shell strings.
 
 Allowed shape:
 
 ```json
 {
-  "command": "git",
-  "args": ["status", "--short"],
-  "reason": "Inspect working tree state."
+  "command": ["git", "status", "--short"],
+  "cwd": ".",
+  "timeoutMs": 5000
 }
 ```
 
@@ -66,7 +80,7 @@ Forbidden:
 
 ```json
 {
-  "command": "git status && rm -rf dist"
+  "command": ["git", "status", "&&", "rm", "-rf", "dist"]
 }
 ```
 
@@ -91,8 +105,8 @@ Command policy must reject:
 
 Permission-sensitive runs must write JSONL events for:
 
-- permission request created;
-- permission decision received;
-- tool execution skipped or completed.
+- `permission.requested`;
+- `permission.decided`;
+- `tool.completed` with success or structured error status.
 
 Trace events must not include secrets, API keys, or private file contents.

@@ -5,6 +5,7 @@ import type {
   ToolDefinition,
   ToolExecutionResult,
   ToolExecutorContext,
+  ToolPreflightResult,
   ToolRegistry,
   ToolSpec
 } from "@code-agent-harness/core";
@@ -22,15 +23,87 @@ export class DefaultToolRegistry implements ToolRegistry {
       const spec: ToolSpec = {
         name: tool.name,
         description: tool.description,
-        inputJsonSchema: tool.inputJsonSchema
+        inputJsonSchema: tool.inputJsonSchema,
+        defaultPermission: tool.defaultPermission
       };
 
-      if (tool.requiresPermission === true) {
+      if (tool.defaultPermission !== "allow") {
         spec.requiresPermission = true;
       }
 
       return spec;
     });
+  }
+
+  async prepare(
+    call: ToolCall,
+    context: ToolExecutorContext
+  ): Promise<ToolPreflightResult> {
+    const tool = this.#tools.get(call.name);
+    if (tool === undefined) {
+      return {
+        ok: false,
+        result: {
+          callId: call.id,
+          toolName: call.name,
+          ok: false,
+          error: createAgentError("tool_validation_error", "Unknown tool", {
+            toolName: call.name
+          })
+        }
+      };
+    }
+
+    const parsed = tool.inputSchema.safeParse(call.input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        result: {
+          callId: call.id,
+          toolName: call.name,
+          ok: false,
+          error: createAgentError("tool_validation_error", "Invalid tool input", {
+            issues: parsed.error.issues.map((issue) => issue.message)
+          })
+        }
+      };
+    }
+
+    try {
+      await tool.evaluatePolicy?.(parsed.data, context);
+    } catch (error) {
+      if (error instanceof ToolPolicyError) {
+        return {
+          ok: false,
+          result: {
+            callId: call.id,
+            toolName: call.name,
+            ok: false,
+            error: error.agentError
+          }
+        };
+      }
+
+      return {
+        ok: false,
+        result: {
+          callId: call.id,
+          toolName: call.name,
+          ok: false,
+          error: errorFromUnknown("tool_execution_error", error)
+        }
+      };
+    }
+
+    return {
+      ok: true,
+      prepared: {
+        callId: call.id,
+        toolName: call.name,
+        input: jsonObject(parsed.data),
+        defaultPermission: tool.defaultPermission
+      }
+    };
   }
 
   async execute(
@@ -61,7 +134,27 @@ export class DefaultToolRegistry implements ToolRegistry {
       };
     }
 
-    if (tool.requiresPermission === true && context.permission !== "allow") {
+    try {
+      await tool.evaluatePolicy?.(parsed.data, context);
+    } catch (error) {
+      if (error instanceof ToolPolicyError) {
+        return {
+          callId: call.id,
+          toolName: call.name,
+          ok: false,
+          error: error.agentError
+        };
+      }
+
+      return {
+        callId: call.id,
+        toolName: call.name,
+        ok: false,
+        error: errorFromUnknown("tool_execution_error", error)
+      };
+    }
+
+    if (tool.defaultPermission !== "allow" && context.permission !== "allow") {
       return {
         callId: call.id,
         toolName: call.name,

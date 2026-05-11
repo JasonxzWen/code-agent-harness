@@ -5,7 +5,11 @@ import type {
   AgentRunState,
   EventLogger,
   JsonObject,
+  PermissionDecision,
+  PermissionGate,
+  PreparedToolCall,
   ProviderClient,
+  ToolExecutionResult,
   ToolRegistry,
   TraceEvent
 } from "./types";
@@ -18,6 +22,7 @@ export interface RunAgentTaskInput {
   maxSteps?: number;
   logger?: EventLogger;
   onEvent?: (event: TraceEvent) => void;
+  permissionGate?: PermissionGate;
 }
 
 const SYSTEM_PROMPT = [
@@ -95,22 +100,29 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
           toolName: call.name
         });
 
-        const result = await input.tools.execute(call, {
+        const preflight = await input.tools.prepare(call, {
           repoRoot: input.repoRoot
         });
-        state.toolResults.push(result);
-        state.messages.push({
-          role: "tool",
-          name: result.toolName,
-          toolCallId: result.callId,
-          content: JSON.stringify(result)
-        });
+        if (!preflight.ok) {
+          appendToolResult(state, preflight.result);
+          await emitToolCompleted(input, runId, preflight.result);
+          continue;
+        }
 
-        await emit(input, runId, "tool.completed", {
-          callId: call.id,
-          toolName: call.name,
-          ok: result.ok
+        const permission = await resolvePermission(input, runId, preflight.prepared);
+        if (permission !== "allow") {
+          const result = createPermissionDeniedResult(preflight.prepared, permission);
+          appendToolResult(state, result);
+          await emitToolCompleted(input, runId, result);
+          continue;
+        }
+
+        const result = await input.tools.execute(call, {
+          repoRoot: input.repoRoot,
+          permission
         });
+        appendToolResult(state, result);
+        await emitToolCompleted(input, runId, result);
       }
     }
 
@@ -133,6 +145,87 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
     });
     return state;
   }
+}
+
+async function resolvePermission(
+  input: RunAgentTaskInput,
+  runId: string,
+  prepared: PreparedToolCall
+): Promise<PermissionDecision> {
+  if (prepared.defaultPermission === "allow") {
+    return "allow";
+  }
+
+  if (prepared.defaultPermission === "deny") {
+    return "deny";
+  }
+
+  const request = {
+    runId,
+    callId: prepared.callId,
+    toolName: prepared.toolName,
+    input: prepared.input,
+    reason: "Tool default permission is ask."
+  };
+
+  await emit(input, runId, "permission.requested", {
+    callId: request.callId,
+    toolName: request.toolName,
+    input: request.input,
+    reason: request.reason
+  });
+
+  const rawDecision =
+    input.permissionGate === undefined
+      ? "deny"
+      : await input.permissionGate.check(request);
+  const decision = rawDecision === "allow" ? "allow" : "deny";
+
+  await emit(input, runId, "permission.decided", {
+    callId: request.callId,
+    toolName: request.toolName,
+    decision
+  });
+
+  return decision;
+}
+
+function createPermissionDeniedResult(
+  prepared: PreparedToolCall,
+  decision: PermissionDecision
+): ToolExecutionResult {
+  return {
+    callId: prepared.callId,
+    toolName: prepared.toolName,
+    ok: false,
+    error: createAgentError("permission_denied", "Tool permission denied", {
+      toolName: prepared.toolName,
+      decision
+    })
+  };
+}
+
+function appendToolResult(state: AgentRunState, result: ToolExecutionResult): void {
+  state.toolResults.push(result);
+  state.messages.push({
+    role: "tool",
+    name: result.toolName,
+    toolCallId: result.callId,
+    content: JSON.stringify(result)
+  });
+}
+
+async function emitToolCompleted(
+  input: RunAgentTaskInput,
+  runId: string,
+  result: ToolExecutionResult
+): Promise<void> {
+  await emit(input, runId, "tool.completed", {
+    callId: result.callId,
+    toolName: result.toolName,
+    ok: result.ok,
+    errorKind: result.error?.kind ?? null
+  });
 }
 
 async function emit(

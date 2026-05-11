@@ -37,6 +37,7 @@ export interface ToolSpec {
   name: string;
   description: string;
   inputJsonSchema: JsonObject;
+  defaultPermission: PermissionDecision;
   requiresPermission?: boolean;
 }
 
@@ -47,6 +48,18 @@ export interface ToolCall {
 }
 
 export type PermissionDecision = "allow" | "ask" | "deny";
+
+export interface PermissionRequest {
+  runId: string;
+  callId: string;
+  toolName: string;
+  input: JsonObject;
+  reason?: string;
+}
+
+export interface PermissionGate {
+  check: (request: PermissionRequest) => Promise<PermissionDecision>;
+}
 
 export interface ToolExecutorContext {
   repoRoot: string;
@@ -65,11 +78,33 @@ export interface ToolExecutionResult {
 
 export interface ToolDefinition<TInput = unknown> extends ToolSpec {
   inputSchema: z.ZodType<TInput>;
+  evaluatePolicy?(input: TInput, context: ToolExecutorContext): Promise<void> | void;
   execute(input: TInput, context: ToolExecutorContext): Promise<JsonValue> | JsonValue;
 }
 
+export interface PreparedToolCall {
+  callId: string;
+  toolName: string;
+  input: JsonObject;
+  defaultPermission: PermissionDecision;
+}
+
+export type ToolPreflightResult =
+  | {
+      ok: true;
+      prepared: PreparedToolCall;
+    }
+  | {
+      ok: false;
+      result: ToolExecutionResult;
+    };
+
 export interface ToolRegistry {
   specs: () => ToolSpec[];
+  prepare: (
+    call: ToolCall,
+    context: ToolExecutorContext
+  ) => Promise<ToolPreflightResult>;
   execute: (
     call: ToolCall,
     context: ToolExecutorContext
@@ -118,6 +153,8 @@ export interface TraceEvent {
     | "run.started"
     | "provider.requested"
     | "provider.completed"
+    | "permission.requested"
+    | "permission.decided"
     | "tool.started"
     | "tool.completed"
     | "run.completed"
