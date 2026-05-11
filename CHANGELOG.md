@@ -4,6 +4,18 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-11
+
+### Changed
+
+- Updated README release wording to show `v0.1.0 Minimal Coding Agent` as the
+  current released scope.
+- Removed personal model/profile preferences from the project-scoped Codex
+  config while preserving project-level safety settings.
+- Documented the current OpenAI provider tool-result mapping limitation.
+
+## [0.1.0] - 2026-05-11
+
 ### Added
 
 - Bun workspace scaffold.
@@ -14,11 +26,6 @@ All notable changes to this project will be documented here.
 - Example `.agent-harness` configuration.
 - v0.1 safety hardening evidence for strict tool validation, permission
   decisions, and the read-only command allowlist.
-
-## [0.1.0] - TBD
-
-### Added
-
 - Terminal-first TUI.
 - Minimal agent loop.
 - Provider abstraction with OpenAI first.
