@@ -1,0 +1,93 @@
+# Ralph Progress Log
+Started: 2026-05-11T13:16:34+08:00
+---
+
+## Codebase Patterns
+
+- v0.1 blockers are tracked in `docs/checklists/v0.1-readiness-gap-list.md`; release-wide status is mirrored in `docs/checklists/release-checklist.md`.
+- Required implementation quality gate is `bun run quality`, which runs format check, lint, typecheck, tests, and smoke.
+- Keep v0.1 scope read-only: do not add file editing, patch application, persistent memory, product subagents, MCP, sandbox runtime, dashboard, IDE extension, or background task mode.
+- Trace redaction evidence should exercise `createJsonlEventLogger` so tests cover serialized JSONL output, not only helper functions.
+- Tool output truncation evidence should assert machine-readable limit and size/count fields, not only `truncated: true`.
+- Run cancellation belongs in core through `AbortSignal`; the CLI may create and abort the controller, but provider/tool execution must remain in core/tools.
+
+## Current Status
+
+- Branch: `ralph/v0.1-blockers`.
+- S-02 symlink escape evidence is already implemented in the working tree and `bun run quality` passed with 20 tests before Ralph setup.
+- Local policy blocked `git commit` from this Codex session. Ralph iterations must not bypass that policy; if commit remains unavailable, leave verified changes uncommitted and document it here.
+---
+## 2026-05-11T13:21:42+08:00 - US-001
+- What was implemented
+  - Added focused JSONL event logger tests proving secret-like fields and API-key-like values are redacted while non-secret trace fields remain readable.
+  - Updated S-09 readiness and release checklist evidence after tests passed.
+- Files changed
+  - `packages/core/test/event-logger.test.ts`
+  - `docs/checklists/v0.1-readiness-gap-list.md`
+  - `docs/checklists/release-checklist.md`
+  - `scripts/ralph/prd.json`
+  - `scripts/ralph/progress.txt`
+- Checks run
+  - `bun test packages/core/test/event-logger.test.ts` passed.
+  - `bun run typecheck` passed.
+  - `bun run quality` passed with 22 tests and smoke.
+- Learnings for future iterations:
+  - Reusable patterns discovered: event logger release evidence should assert the JSONL file contents written by `createJsonlEventLogger`.
+  - Gotchas encountered: markdown checklist table edits can require Prettier before `bun run quality` passes.
+  - Useful codebase context: baseline worktree was already dirty before US-001, so story changes were left uncommitted per Ralph policy.
+---
+## 2026-05-11T13:28:10+08:00 - US-002
+- What was implemented
+  - Added focused truncation tests for `read_file`, `list_files`, `search_repo`, and `run_command`.
+  - Added explicit returned limit and size/count metadata for bounded tool outputs.
+  - Added `run_command.maxOutputBytes` so command truncation can be tested deterministically without large fixtures.
+  - Updated S-07 readiness, release checklist evidence, and tool protocol docs after tests passed.
+- Files changed
+  - `packages/tools/src/read-tools.ts`
+  - `packages/tools/src/command-tool.ts`
+  - `packages/tools/test/tools.test.ts`
+  - `docs/agent/tool-protocol.md`
+  - `docs/checklists/v0.1-readiness-gap-list.md`
+  - `docs/checklists/release-checklist.md`
+  - `scripts/ralph/prd.json`
+  - `scripts/ralph/progress.txt`
+- Checks run
+  - `bun test packages/tools/test/tools.test.ts` passed.
+  - `bun run typecheck` passed.
+  - `bun run quality` passed with 26 tests and smoke.
+- Learnings for future iterations:
+  - Reusable patterns discovered: bounded tool outputs should expose the applied limit and returned size/count alongside `truncated`.
+  - Gotchas encountered: `run_command` previously had only a hardcoded output cap, so adding `maxOutputBytes` avoided slow tests that would need huge command output.
+  - Useful codebase context: baseline worktree was already dirty before US-002, so story changes were left uncommitted per Ralph policy.
+---
+## 2026-05-11T13:36:36+08:00 - US-003
+- What was implemented
+  - Added first-class `aborted` run state and `run.aborted` trace events in the core loop.
+  - Threaded `AbortSignal` through provider requests, tool prepare/execute contexts, the OpenAI provider, and `run_command` subprocess cancellation.
+  - Added CLI abort interaction with `q`/`Ctrl+C` while keeping tool execution outside the TUI.
+  - Added focused core and CLI-adjacent abort tests, then updated F-14 readiness/release evidence and public demo notes.
+- Files changed
+  - `README.md`
+  - `apps/cli/src/App.tsx`
+  - `apps/cli/src/interaction.ts`
+  - `apps/cli/test/interaction.test.ts`
+  - `docs/checklists/release-checklist.md`
+  - `docs/checklists/v0.1-readiness-gap-list.md`
+  - `docs/examples/v0.1-demo-script.md`
+  - `packages/core/src/agent-loop.ts`
+  - `packages/core/src/types.ts`
+  - `packages/core/test/agent-loop.test.ts`
+  - `packages/providers/src/openai-provider.ts`
+  - `packages/tools/src/command-tool.ts`
+  - `scripts/ralph/prd.json`
+  - `scripts/ralph/progress.txt`
+- Checks run
+  - `bun test packages/core/test/agent-loop.test.ts` passed.
+  - `bun test apps/cli/test/interaction.test.ts` passed.
+  - `bun run typecheck` passed.
+  - `bun run quality` passed with 31 tests and smoke.
+- Learnings for future iterations:
+  - Reusable patterns discovered: run cancellation should be represented as `status: "aborted"` rather than as a failed run.
+  - Gotchas encountered: CLI abort should resolve any pending permission prompt before clearing UI state so an abandoned permission promise does not linger.
+  - Useful codebase context: baseline worktree was already dirty before US-003, so story changes were left uncommitted per Ralph policy.
+---

@@ -49,6 +49,8 @@ export const listFilesTool: ToolDefinition<z.infer<typeof ListFilesInputSchema>>
     const result = await listSafeFiles(context.repoRoot, input.path, input.maxResults);
     return {
       path: input.path,
+      count: result.files.length,
+      maxResults: input.maxResults,
       ...result
     };
   }
@@ -79,6 +81,7 @@ export const readFileTool: ToolDefinition<z.infer<typeof ReadFileInputSchema>> =
       path: toPosixPath(path.relative(realRoot, safePath)),
       content,
       truncated,
+      maxBytes: input.maxBytes,
       bytesRead: Math.min(buffer.byteLength, input.maxBytes),
       sizeBytes: buffer.byteLength
     };
@@ -142,6 +145,8 @@ export const searchRepoTool: ToolDefinition<z.infer<typeof SearchRepoInputSchema
     return {
       query: input.query,
       matches,
+      matchCount: matches.length,
+      maxResults: input.maxResults,
       truncated: listed.truncated || matches.length >= input.maxResults
     };
   }

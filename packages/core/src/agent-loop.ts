@@ -9,7 +9,9 @@ import type {
   PermissionGate,
   PreparedToolCall,
   ProviderClient,
+  ProviderGenerateRequest,
   ToolExecutionResult,
+  ToolExecutorContext,
   ToolRegistry,
   TraceEvent
 } from "./types";
@@ -23,6 +25,7 @@ export interface RunAgentTaskInput {
   logger?: EventLogger;
   onEvent?: (event: TraceEvent) => void;
   permissionGate?: PermissionGate;
+  signal?: AbortSignal;
 }
 
 const SYSTEM_PROMPT = [
@@ -35,6 +38,7 @@ const SYSTEM_PROMPT = [
 export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunState> {
   const maxSteps = input.maxSteps ?? 8;
   const runId = createRunId();
+  const signal = input.signal;
   const messages: AgentMessage[] = [
     {
       role: "system",
@@ -60,7 +64,11 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
   });
 
   try {
+    throwIfRunAborted(signal);
+
     for (let step = 0; step < maxSteps; step += 1) {
+      throwIfRunAborted(signal);
+
       const tools = input.tools.specs();
       await emit(input, runId, "provider.requested", {
         provider: input.provider.name,
@@ -68,12 +76,21 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
         toolCount: tools.length
       });
 
-      const response = await input.provider.generate({
+      const providerRequest: ProviderGenerateRequest = {
         runId,
         step,
         messages: state.messages,
         tools
-      });
+      };
+      if (signal !== undefined) {
+        providerRequest.signal = signal;
+      }
+
+      const response = await abortable(
+        signal,
+        input.provider.generate(providerRequest)
+      );
+      throwIfRunAborted(signal);
 
       await emit(input, runId, "provider.completed", {
         provider: input.provider.name,
@@ -95,21 +112,33 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
       }
 
       for (const call of response.calls) {
+        throwIfRunAborted(signal);
+
         await emit(input, runId, "tool.started", {
           callId: call.id,
           toolName: call.name
         });
 
-        const preflight = await input.tools.prepare(call, {
-          repoRoot: input.repoRoot
-        });
+        const preflight = await abortable(
+          signal,
+          input.tools.prepare(call, createToolContext(input.repoRoot, signal))
+        );
+        throwIfRunAborted(signal);
+
         if (!preflight.ok) {
           appendToolResult(state, preflight.result);
           await emitToolCompleted(input, runId, preflight.result);
           continue;
         }
 
-        const permission = await resolvePermission(input, runId, preflight.prepared);
+        const permission = await resolvePermission(
+          input,
+          runId,
+          preflight.prepared,
+          signal
+        );
+        throwIfRunAborted(signal);
+
         if (permission !== "allow") {
           const result = createPermissionDeniedResult(preflight.prepared, permission);
           appendToolResult(state, result);
@@ -117,10 +146,15 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
           continue;
         }
 
-        const result = await input.tools.execute(call, {
-          repoRoot: input.repoRoot,
-          permission
-        });
+        const result = await abortable(
+          signal,
+          input.tools.execute(
+            call,
+            createToolContext(input.repoRoot, signal, permission)
+          )
+        );
+        throwIfRunAborted(signal);
+
         appendToolResult(state, result);
         await emitToolCompleted(input, runId, result);
       }
@@ -137,6 +171,10 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
     });
     return state;
   } catch (error) {
+    if (isRunAbortError(error) || signal?.aborted === true) {
+      return abortRun(input, runId, state);
+    }
+
     const agentError = errorFromUnknown("internal_error", error);
     state.status = "failed";
     state.error = agentError;
@@ -150,7 +188,8 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
 async function resolvePermission(
   input: RunAgentTaskInput,
   runId: string,
-  prepared: PreparedToolCall
+  prepared: PreparedToolCall,
+  signal: AbortSignal | undefined
 ): Promise<PermissionDecision> {
   if (prepared.defaultPermission === "allow") {
     return "allow";
@@ -178,7 +217,9 @@ async function resolvePermission(
   const rawDecision =
     input.permissionGate === undefined
       ? "deny"
-      : await input.permissionGate.check(request);
+      : await abortable(signal, input.permissionGate.check(request));
+  throwIfRunAborted(signal);
+
   const decision = rawDecision === "allow" ? "allow" : "deny";
 
   await emit(input, runId, "permission.decided", {
@@ -188,6 +229,40 @@ async function resolvePermission(
   });
 
   return decision;
+}
+
+async function abortRun(
+  input: RunAgentTaskInput,
+  runId: string,
+  state: AgentRunState
+): Promise<AgentRunState> {
+  const error = createAgentError("aborted", "Run aborted by user");
+  state.status = "aborted";
+  state.error = error;
+  await emit(input, runId, "run.aborted", {
+    reason: "user"
+  });
+  return state;
+}
+
+function createToolContext(
+  repoRoot: string,
+  signal: AbortSignal | undefined,
+  permission?: PermissionDecision
+): ToolExecutorContext {
+  const context: ToolExecutorContext = {
+    repoRoot
+  };
+
+  if (permission !== undefined) {
+    context.permission = permission;
+  }
+
+  if (signal !== undefined) {
+    context.signal = signal;
+  }
+
+  return context;
 }
 
 function createPermissionDeniedResult(
@@ -242,4 +317,46 @@ async function emit(
   };
   input.onEvent?.(event);
   await input.logger?.write(event);
+}
+
+class RunAbortError extends Error {
+  constructor() {
+    super("Run aborted by user");
+    this.name = "RunAbortError";
+  }
+}
+
+function throwIfRunAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted === true) {
+    throw new RunAbortError();
+  }
+}
+
+function isRunAbortError(error: unknown): error is RunAbortError {
+  return error instanceof RunAbortError;
+}
+
+async function abortable<T>(
+  signal: AbortSignal | undefined,
+  operation: Promise<T>
+): Promise<T> {
+  if (signal === undefined) {
+    return operation;
+  }
+
+  throwIfRunAborted(signal);
+
+  return new Promise<T>((resolve, reject) => {
+    const abort = (): void => {
+      reject(new RunAbortError());
+    };
+
+    signal.addEventListener("abort", abort, {
+      once: true
+    });
+
+    operation.then(resolve, reject).finally(() => {
+      signal.removeEventListener("abort", abort);
+    });
+  });
 }

@@ -14,7 +14,8 @@ const RunCommandInputSchema = z
   .object({
     command: z.array(z.string().min(1)).min(1),
     cwd: z.string().default("."),
-    timeoutMs: z.number().int().min(100).max(10_000).default(5_000)
+    timeoutMs: z.number().int().min(100).max(10_000).default(5_000),
+    maxOutputBytes: z.number().int().min(1).max(100_000).default(20_000)
   })
   .strict();
 
@@ -31,7 +32,8 @@ export const runCommandTool: ToolDefinition<z.infer<typeof RunCommandInputSchema
     {
       command: stringArraySchema,
       cwd: stringSchema,
-      timeoutMs: integerSchema
+      timeoutMs: integerSchema,
+      maxOutputBytes: integerSchema
     },
     ["command"]
   ),
@@ -49,21 +51,32 @@ export const runCommandTool: ToolDefinition<z.infer<typeof RunCommandInputSchema
       );
     }
     const args = input.command.slice(1);
-    const result = await execa(file, args, {
+    const execaOptions = {
       all: true,
       cwd,
       reject: false,
       shell: false,
       timeout: input.timeoutMs
-    });
+    };
+    const result =
+      context.signal === undefined
+        ? await execa(file, args, execaOptions)
+        : await execa(file, args, {
+            ...execaOptions,
+            cancelSignal: context.signal
+          });
     const combinedOutput = result.all ?? "";
-    const maxOutputBytes = 20_000;
+    const combinedOutputBuffer = Buffer.from(combinedOutput, "utf8");
+    const outputBuffer = combinedOutputBuffer.subarray(0, input.maxOutputBytes);
 
     return {
       command: input.command,
       exitCode: result.exitCode ?? null,
-      output: combinedOutput.slice(0, maxOutputBytes),
-      truncated: combinedOutput.length > maxOutputBytes
+      output: outputBuffer.toString("utf8"),
+      truncated: combinedOutputBuffer.byteLength > input.maxOutputBytes,
+      maxOutputBytes: input.maxOutputBytes,
+      outputBytes: outputBuffer.byteLength,
+      sizeBytes: combinedOutputBuffer.byteLength
     };
   }
 };
