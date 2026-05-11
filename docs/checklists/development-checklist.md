@@ -31,6 +31,7 @@
 [ ] format check
 [ ] lint
 [ ] typecheck
+[ ] build
 [ ] test
 [ ] smoke
 [ ] self-review

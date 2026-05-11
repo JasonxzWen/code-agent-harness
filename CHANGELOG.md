@@ -9,7 +9,7 @@ All notable changes to this project will be documented here.
 - Bun workspace scaffold.
 - CLI, core, tools, and providers packages.
 - Tiny TypeScript fixture repository.
-- Format, lint, typecheck, test, smoke, and quality scripts.
+- Format, lint, typecheck, build, test, smoke, and quality scripts.
 - GitHub Actions quality workflow.
 - Example `.agent-harness` configuration.
 - v0.1 safety hardening evidence for strict tool validation, permission
