@@ -12,6 +12,8 @@ All notable changes to this project will be documented here.
 - Format, lint, typecheck, test, smoke, and quality scripts.
 - GitHub Actions quality workflow.
 - Example `.agent-harness` configuration.
+- v0.1 safety hardening evidence for strict tool validation, permission
+  decisions, and the read-only command allowlist.
 
 ## [0.1.0] - TBD
 

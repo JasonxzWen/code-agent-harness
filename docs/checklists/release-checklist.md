@@ -1,18 +1,18 @@
 # Release Checklist
 
-```txt
-[ ] release contract exists
-[ ] scope matches contract
-[ ] v0.1 readiness gap list has no open blockers
-[ ] permission gate evidence recorded
-[ ] strict tool validation evidence recorded
-[ ] quality gates pass
-[ ] smoke test passes
-[ ] README updated
-[ ] CHANGELOG updated
-[ ] release note written
-[ ] ADRs updated
-[ ] demo documented
-[ ] known limitations documented
-[ ] git tag prepared
-```
+| Status | Item                                         | Evidence / next action                                                                                                                                             |
+| ------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [x]    | release contract exists                      | `docs/releases/v0.1.0-contract.md`                                                                                                                                 |
+| [x]    | scope matches contract                       | Scope guard in `docs/checklists/v0.1-readiness-gap-list.md` is satisfied.                                                                                          |
+| [ ]    | v0.1 readiness gap list has no open blockers | Remaining blockers: F-14, S-02 evidence, S-07 evidence, S-09 evidence.                                                                                             |
+| [x]    | permission gate evidence recorded            | `packages/core/test/agent-loop.test.ts`; `apps/cli/src/App.tsx`; readiness checklist evidence recorded.                                                            |
+| [x]    | strict tool validation evidence recorded     | `packages/tools/test/tools.test.ts`; readiness checklist evidence recorded.                                                                                        |
+| [x]    | quality gates pass                           | `bun run quality` passed after permission hardening.                                                                                                               |
+| [x]    | smoke test passes                            | `bun run smoke` passed as part of `bun run quality`.                                                                                                               |
+| [x]    | README updated                               | README documents current v0.1 scope, usage, safety model, and limitations.                                                                                         |
+| [x]    | CHANGELOG updated                            | CHANGELOG includes current v0.1 safety hardening entry.                                                                                                            |
+| [ ]    | release note written                         | Create release note before tagging.                                                                                                                                |
+| [x]    | ADRs updated                                 | Existing ADRs cover read-only v0.1, Zod tool protocol, JSONL logging, provider boundary, permission gate, and no memory. No new ADR needed for the checklist sync. |
+| [x]    | demo documented                              | `docs/examples/v0.1-demo-script.md` matches the current deterministic fixture demo.                                                                                |
+| [x]    | known limitations documented                 | README and release contract document read-only v0.1 limitations.                                                                                                   |
+| [ ]    | git tag prepared                             | Prepare only after all blockers are closed.                                                                                                                        |
