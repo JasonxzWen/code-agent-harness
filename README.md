@@ -41,10 +41,18 @@ User Task
 
 ```bash
 bun install
+bun run build
 bun run dev -- --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
 ```
 
 During an active TUI run, press `q` or `Ctrl+C` to abort the run.
+
+The build command emits `dist/agent-harness.js`. After building, run the CLI
+bundle with:
+
+```bash
+bun dist/agent-harness.js --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
+```
 
 Example task:
 
@@ -83,6 +91,7 @@ bun run format
 bun run format:check
 bun run lint
 bun run typecheck
+bun run build
 bun run test
 bun run smoke
 bun run quality

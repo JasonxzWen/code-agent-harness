@@ -33,6 +33,7 @@ Acceptance criteria are defined across five areas.
 - strict typecheck passes;
 - lint passes;
 - format check passes;
+- build passes;
 - tests pass;
 - smoke passes;
 - package boundaries hold;
@@ -57,6 +58,7 @@ Do not release unless:
 [ ] scope matches release contract
 [ ] no v0.2+ feature slipped in
 [ ] quality gate passes
+[ ] build passes
 [ ] smoke test passes
 [ ] README updated
 [ ] CHANGELOG updated

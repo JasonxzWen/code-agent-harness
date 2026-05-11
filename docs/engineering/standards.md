@@ -73,6 +73,17 @@ export type AgentErrorKind =
 - Permission approval cannot override deterministic deny rules.
 - v0.1 tools must remain read-only.
 
+## Build Contract
+
+- `bun run build` must produce the local CLI bundle at `dist/agent-harness.js`.
+- The build may externalize runtime dependencies, but it must bundle local CLI
+  source and remain runnable with `bun dist/agent-harness.js ...` after
+  `bun install`.
+- Any change to CLI entrypoints, workspace package exports, runtime dependency
+  loading, or TypeScript module resolution must keep `bun run build` passing.
+- `bun run quality` and CI must include `bun run build` so build drift is caught
+  before release.
+
 ## Commits
 
 Use Conventional Commits:

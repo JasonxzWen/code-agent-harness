@@ -104,6 +104,7 @@ Run before finishing implementation work:
 bun run format:check
 bun run lint
 bun run typecheck
+bun run build
 bun run test
 bun run smoke
 bun run quality
@@ -125,6 +126,7 @@ Do not claim a command passed unless it was run and passed.
 | bun run format:check | pass/fail/not run |
 | bun run lint         | pass/fail/not run |
 | bun run typecheck    | pass/fail/not run |
+| bun run build        | pass/fail/not run |
 | bun run test         | pass/fail/not run |
 | bun run smoke        | pass/fail/not run |
 

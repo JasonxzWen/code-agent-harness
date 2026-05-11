@@ -14,10 +14,11 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "build": "bun build apps/cli/src/main.tsx --target=bun --packages=external --outfile=dist/agent-harness.js",
     "test": "bun test",
     "smoke": "bun run scripts/smoke.ts",
     "smoke:live": "bun run scripts/smoke-live.ts",
-    "quality": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run smoke"
+    "quality": "bun run format:check && bun run lint && bun run typecheck && bun run build && bun run test && bun run smoke"
   },
   "dependencies": {
     "execa": "^9.6.0",
