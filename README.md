@@ -44,6 +44,8 @@ bun install
 bun run dev -- --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
 ```
 
+During an active TUI run, press `q` or `Ctrl+C` to abort the run.
+
 Example task:
 
 ```txt

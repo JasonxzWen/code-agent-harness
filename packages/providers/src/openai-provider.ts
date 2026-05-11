@@ -23,18 +23,23 @@ export class OpenAIProvider implements ProviderClient {
   }
 
   async generate(request: ProviderGenerateRequest): Promise<ProviderResponse> {
-    const response = await this.#client.chat.completions.create({
-      model: this.#model,
-      messages: request.messages.map(toChatMessage),
-      tools: request.tools.map((tool) => ({
-        type: "function",
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.inputJsonSchema
-        }
-      }))
-    });
+    const response = await this.#client.chat.completions.create(
+      {
+        model: this.#model,
+        messages: request.messages.map(toChatMessage),
+        tools: request.tools.map((tool) => ({
+          type: "function",
+          function: {
+            name: tool.name,
+            description: tool.description,
+            parameters: tool.inputJsonSchema
+          }
+        }))
+      },
+      {
+        signal: request.signal
+      }
+    );
 
     const message = response.choices[0]?.message;
     if (message?.tool_calls !== undefined && message.tool_calls.length > 0) {

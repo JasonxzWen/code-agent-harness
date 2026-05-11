@@ -7,6 +7,7 @@ export type JsonObject = {
 };
 
 export type AgentErrorKind =
+  | "aborted"
   | "config_error"
   | "provider_error"
   | "tool_validation_error"
@@ -126,6 +127,7 @@ export interface ProviderGenerateRequest {
   step: number;
   messages: AgentMessage[];
   tools: ToolSpec[];
+  signal?: AbortSignal;
 }
 
 export interface ProviderClient {
@@ -133,7 +135,7 @@ export interface ProviderClient {
   generate: (request: ProviderGenerateRequest) => Promise<ProviderResponse>;
 }
 
-export type RunStatus = "running" | "completed" | "failed";
+export type RunStatus = "running" | "completed" | "failed" | "aborted";
 
 export interface AgentRunState {
   runId: string;
@@ -158,6 +160,7 @@ export interface TraceEvent {
     | "tool.started"
     | "tool.completed"
     | "run.completed"
+    | "run.aborted"
     | "run.failed";
   data: JsonObject;
 }

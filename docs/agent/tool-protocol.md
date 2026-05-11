@@ -42,6 +42,9 @@ export interface ToolResult<TOutput> {
 | `git_status`  | allow      | inspect working tree state        |
 | `run_command` | ask        | run restricted read-only commands |
 
+`run_command` accepts `maxOutputBytes` to lower the command output cap for a
+specific approved call. The default cap is 20,000 bytes.
+
 ## Rules
 
 - Tool names use `verb_object`.

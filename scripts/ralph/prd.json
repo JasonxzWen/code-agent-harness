@@ -1,0 +1,59 @@
+{
+  "project": "code-agent-harness",
+  "branchName": "ralph/v0.1-blockers",
+  "description": "Close the remaining v0.1 readiness blockers with focused implementation, test evidence, checklist updates, and quality gates.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add trace redaction evidence",
+      "description": "As a release owner, I need direct tests proving JSONL traces redact secret-like values so S-09 can be closed with evidence.",
+      "acceptanceCriteria": [
+        "Inspect packages/core/src/event-logger.ts before editing",
+        "Add focused event logger tests that prove secret and API-key-like fields are redacted in trace JSONL",
+        "Tests preserve evidence that non-secret trace fields remain readable",
+        "Update docs/checklists/v0.1-readiness-gap-list.md and docs/checklists/release-checklist.md for S-09 only after tests pass",
+        "Typecheck passes",
+        "bun run quality passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Smallest remaining evidence blocker. Do not add persistent memory, MCP, product subagents, or background task mode."
+    },
+    {
+      "id": "US-002",
+      "title": "Add truncation behavior evidence",
+      "description": "As a release owner, I need direct tests for bounded tool output and truncation metadata so S-07 can be closed with evidence.",
+      "acceptanceCriteria": [
+        "Inspect packages/tools/src/read-tools.ts and packages/tools/src/command-tool.ts before editing",
+        "Add focused tests for read_file maxBytes truncation metadata",
+        "Add focused tests for list_files maxResults truncation metadata",
+        "Add focused tests for search_repo result-limit truncation metadata",
+        "Add focused tests for run_command maxOutputBytes truncation metadata",
+        "Update directly affected docs/checklists for S-07 only after tests pass",
+        "Typecheck passes",
+        "bun run quality passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Keep this evidence-focused unless tests expose a real implementation gap."
+    },
+    {
+      "id": "US-003",
+      "title": "Implement user abort stop",
+      "description": "As a CLI user, I need aborting a running task to stop further provider/tool work so F-14 is satisfied.",
+      "acceptanceCriteria": [
+        "Inspect packages/core/src/agent-loop.ts, packages/core/src/types.ts, and apps/cli/src/App.tsx before editing",
+        "Core run state represents an aborted run distinctly from completed and failed runs",
+        "AbortSignal stops further provider and tool work after user abort",
+        "CLI exposes an abort interaction without moving tool execution into the TUI",
+        "Add focused core and CLI-adjacent tests for abort behavior where the repo test stack supports them",
+        "Update directly affected docs/checklists for F-14 only after tests pass",
+        "Typecheck passes",
+        "bun run quality passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Largest remaining blocker. Stay inside v0.1 scope and do not add background task mode."
+    }
+  ]
+}

@@ -18,6 +18,7 @@ import {
 import { createDefaultToolRegistry } from "@code-agent-harness/tools";
 import { Box, Text, useApp, useInput } from "ink";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { shouldAbortRunInput } from "./interaction";
 
 export interface AppProps {
   repoRoot: string;
@@ -37,6 +38,8 @@ export function App({
   const [pendingPermission, setPendingPermission] = useState<PermissionRequest>();
   const [finalAnswer, setFinalAnswer] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const [abortMessage, setAbortMessage] = useState<string | undefined>();
+  const abortController = useRef<AbortController | undefined>(undefined);
   const permissionResolver = useRef<
     ((decision: PermissionDecision) => void) | undefined
   >(undefined);
@@ -58,6 +61,21 @@ export function App({
   );
 
   useInput((input, key) => {
+    if (
+      task !== undefined &&
+      finalAnswer === undefined &&
+      error === undefined &&
+      abortMessage === undefined &&
+      shouldAbortRunInput(input, key)
+    ) {
+      abortController.current?.abort();
+      permissionResolver.current?.("deny");
+      permissionResolver.current = undefined;
+      setPendingPermission(undefined);
+      setAbortMessage("Run aborted by user");
+      return;
+    }
+
     if (pendingPermission !== undefined) {
       if (input.toLowerCase() === "y" || input.toLowerCase() === "a") {
         permissionResolver.current?.("allow");
@@ -105,6 +123,11 @@ export function App({
       `cli-${Date.now().toString()}.jsonl`
     );
     const logger = createJsonlEventLogger(tracePath);
+    const controller = new AbortController();
+    abortController.current = controller;
+    setAbortMessage(undefined);
+    setError(undefined);
+    setFinalAnswer(undefined);
 
     void runAgentTask({
       task,
@@ -113,17 +136,27 @@ export function App({
       tools,
       logger,
       permissionGate,
+      signal: controller.signal,
       onEvent: (event) => {
         setEvents((current) => [...current, event].slice(-8));
       }
     }).then((state) => {
       if (state.status === "completed") {
         setFinalAnswer(state.finalAnswer ?? "");
+      } else if (state.status === "aborted") {
+        setAbortMessage(state.error?.message ?? "Run aborted by user");
       } else {
         setError(state.error?.message ?? "Run failed");
       }
       exit();
     });
+
+    return () => {
+      controller.abort();
+      if (abortController.current === controller) {
+        abortController.current = undefined;
+      }
+    };
   }, [exit, live, permissionGate, repoRoot, task, tools]);
 
   if (task === undefined) {
@@ -144,6 +177,11 @@ export function App({
       <Text color="cyan">agent-harness</Text>
       <Text>Repo: {repoRoot}</Text>
       <Text>Task: {task}</Text>
+      {finalAnswer === undefined &&
+      error === undefined &&
+      abortMessage === undefined ? (
+        <Text dimColor>Abort: q or Ctrl+C</Text>
+      ) : null}
       {events.map((event) => (
         <Text key={`${event.timestamp}-${event.type}`}>
           {event.type} {JSON.stringify(event.data)}
@@ -160,6 +198,7 @@ export function App({
       ) : null}
       {finalAnswer !== undefined ? <Text color="green">{finalAnswer}</Text> : null}
       {error !== undefined ? <Text color="red">{error}</Text> : null}
+      {abortMessage !== undefined ? <Text color="yellow">{abortMessage}</Text> : null}
     </Box>
   );
 }
