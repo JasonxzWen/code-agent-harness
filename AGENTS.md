@@ -96,6 +96,22 @@ research → spec → alignment brief → implementation → quality gates → s
 For v0.1 blockers, do not start implementation until the relevant
 `docs/specs/v0.1/` spec exists and acceptance criteria are explicit.
 
+## Release documentation
+
+Every release must have user-facing documentation that explains:
+
+- features and user-visible behavior;
+- key logic and code definition locations;
+- a Mermaid diagram for the release flow or change boundary;
+- why the current implementation was chosen;
+- how comparable projects such as Claude Code, Codex, opencode, OpenClaw, and
+  Hermes Agent approach the same problem;
+- why this project chooses its current release-scoped approach.
+
+From `v0.2.0` onward, new release-facing docs must use Chinese as the body
+language. Code identifiers, commands, package names, and external source titles
+may remain in their original language.
+
 ## Quality gates
 
 Run before finishing implementation work:

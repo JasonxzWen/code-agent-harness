@@ -35,9 +35,20 @@ Coding may begin when:
 - make focused changes;
 - add/update tests;
 - update docs for public behavior;
+- update release documentation when behavior, capability boundaries, quality
+  evidence, or user-facing workflows change;
 - run quality gates;
 - self-review the diff;
 - report limitations honestly.
+
+## Release documentation expectations
+
+Release updates must follow `docs/engineering/release-documentation-standard.md`.
+
+From `v0.2.0` onward, new release-facing docs must use Chinese as the body
+language. A release note must include features, Mermaid diagrams, key code
+definition locations, implementation rationale, industry comparison, quality
+evidence, known limitations, and next steps.
 
 ## Stop conditions
 
