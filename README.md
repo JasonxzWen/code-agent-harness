@@ -26,7 +26,7 @@ logging, and evaluation readiness.
 
 ## Current release
 
-Planned: `v0.1.0 Minimal Coding Agent`
+Current release: `v0.1.0 Minimal Coding Agent`
 
 ```txt
 User Task
