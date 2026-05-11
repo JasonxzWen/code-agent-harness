@@ -84,6 +84,20 @@ export type AgentErrorKind =
 - `bun run quality` and CI must include `bun run build` so build drift is caught
   before release.
 
+## Release Documentation
+
+- Every release note must follow
+  `docs/engineering/release-documentation-standard.md`.
+- Release notes must explain features, key logic, code definition locations,
+  implementation rationale, industry comparison, quality evidence, known
+  limitations, and next steps.
+- Release notes must include at least one Mermaid diagram that shows the release
+  flow, capability boundary, or module change.
+- From `v0.2.0` onward, new release notes, release contracts, checklists,
+  specs, research notes, and ADRs must use Chinese as the body language. Code
+  identifiers, commands, package names, external project names, and source
+  titles may remain in their original language.
+
 ## Commits
 
 Use Conventional Commits:

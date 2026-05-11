@@ -3,16 +3,17 @@
 ## Interface
 
 ```ts
-export type ToolPermissionMode = "allow" | "ask" | "deny";
+export type PermissionDecision = "allow" | "ask" | "deny";
 
-export interface AgentTool<TInput, TOutput> {
+export interface ToolDefinition<TInput = unknown> extends ToolSpec {
   name: string;
   description: string;
+  inputJsonSchema: JsonObject;
+  defaultPermission: PermissionDecision;
+  requiresPermission?: boolean;
   inputSchema: z.ZodType<TInput>;
-  outputSchema: z.ZodType<TOutput>;
-  defaultPermission: ToolPermissionMode;
   evaluatePolicy?(input: TInput, context: ToolExecutionContext): Promise<void> | void;
-  execute(input: TInput, context: ToolExecutionContext): Promise<ToolResult<TOutput>>;
+  execute(input: TInput, context: ToolExecutionContext): Promise<JsonValue> | JsonValue;
 }
 
 export interface ToolRegistry {
@@ -20,15 +21,13 @@ export interface ToolRegistry {
   execute(call: ToolCall, context: ToolExecutionContext): Promise<ToolExecutionResult>;
 }
 
-export interface ToolResult<TOutput> {
+export interface ToolExecutionResult {
+  callId: string;
+  toolName: string;
   ok: boolean;
-  output?: TOutput;
-  error?: ToolError;
-  metadata: {
-    durationMs: number;
-    truncated: boolean;
-    outputChars: number;
-  };
+  output?: JsonValue;
+  error?: AgentError;
+  metadata?: JsonObject;
 }
 ```
 
