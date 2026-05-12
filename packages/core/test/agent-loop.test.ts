@@ -101,6 +101,85 @@ describe("runAgentTask", () => {
     expect(state.toolResults[0]?.ok).toBe(true);
   });
 
+  test("passes preview metadata to permission gate and trace", async () => {
+    const preview = {
+      title: "Patch preview",
+      summary: {
+        fileCount: 1,
+        additions: 1,
+        deletions: 0
+      },
+      body: "diff --git a/README.md b/README.md\n",
+      truncated: false
+    };
+    const permissionRequests: unknown[] = [];
+    const permissionEvents: unknown[] = [];
+    const toolCompletedEvents: unknown[] = [];
+
+    const state = await runAgentTask({
+      task: "patch",
+      repoRoot: process.cwd(),
+      provider: new CommandProvider(),
+      tools: {
+        specs: () => [
+          {
+            name: "run_command",
+            description: "command",
+            defaultPermission: "ask",
+            inputJsonSchema: {
+              type: "object"
+            }
+          }
+        ],
+        prepare: (call: ToolCall): Promise<ToolPreflightResult> =>
+          Promise.resolve({
+            ok: true,
+            prepared: {
+              callId: call.id,
+              toolName: call.name,
+              input: call.input,
+              defaultPermission: "ask",
+              preview
+            }
+          }),
+        execute: (call: ToolCall): Promise<ToolExecutionResult> =>
+          Promise.resolve({
+            callId: call.id,
+            toolName: call.name,
+            ok: true,
+            output: {},
+            metadata: {
+              files: ["README.md"]
+            }
+          })
+      },
+      maxSteps: 2,
+      permissionGate: {
+        check(request) {
+          permissionRequests.push(request);
+          return Promise.resolve("allow");
+        }
+      },
+      onEvent(event) {
+        if (event.type === "permission.requested") {
+          permissionEvents.push(event.data);
+        }
+        if (event.type === "tool.completed") {
+          toolCompletedEvents.push(event.data);
+        }
+      }
+    });
+
+    expect(state.status).toBe("completed");
+    expect(permissionRequests).toHaveLength(1);
+    expect(permissionEvents).toHaveLength(1);
+    expect(JSON.stringify(permissionRequests[0])).toContain("Patch preview");
+    expect(JSON.stringify(permissionEvents[0])).toContain("preview_available");
+    expect(JSON.stringify(permissionEvents[0])).toContain("bodyBytes");
+    expect(JSON.stringify(permissionEvents[0])).not.toContain("diff --git");
+    expect(JSON.stringify(toolCompletedEvents[0])).toContain("README.md");
+  });
+
   test("does not execute denied permissioned tools", async () => {
     let executed = false;
     const state = await runAgentTask({
@@ -127,6 +206,62 @@ describe("runAgentTask", () => {
     expect(executed).toBe(false);
     expect(state.toolResults[0]?.ok).toBe(false);
     expect(state.toolResults[0]?.error?.kind).toBe("permission_denied");
+  });
+
+  test("does not ask permission when preflight rejects a tool call", async () => {
+    let permissionRequested = false;
+    let executed = false;
+
+    const state = await runAgentTask({
+      task: "patch",
+      repoRoot: process.cwd(),
+      provider: new CommandProvider(),
+      tools: {
+        specs: () => [
+          {
+            name: "run_command",
+            description: "command",
+            defaultPermission: "ask",
+            inputJsonSchema: {
+              type: "object"
+            }
+          }
+        ],
+        prepare: (call: ToolCall): Promise<ToolPreflightResult> =>
+          Promise.resolve({
+            ok: false,
+            result: {
+              callId: call.id,
+              toolName: call.name,
+              ok: false,
+              error: {
+                kind: "patch_policy_violation",
+                message: "Patch policy denied"
+              }
+            }
+          }),
+        execute: (call: ToolCall): Promise<ToolExecutionResult> => {
+          executed = true;
+          return Promise.resolve({
+            callId: call.id,
+            toolName: call.name,
+            ok: true,
+            output: {}
+          });
+        }
+      },
+      maxSteps: 2,
+      permissionGate: {
+        check() {
+          permissionRequested = true;
+          return Promise.resolve("allow");
+        }
+      }
+    });
+
+    expect(state.toolResults[0]?.error?.kind).toBe("patch_policy_violation");
+    expect(permissionRequested).toBe(false);
+    expect(executed).toBe(false);
   });
 
   test("returns aborted state when the run signal aborts provider work", async () => {

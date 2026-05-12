@@ -50,6 +50,37 @@ Acceptance criteria are defined across five areas.
 - testing strategy complete;
 - tool and permission docs complete.
 
+## E2E Acceptance
+
+User-visible features must prove the complete user workflow, not only internal
+units.
+
+Do not accept a release feature unless:
+
+```txt
+[ ] user-level scenario defined
+[ ] fixture or input defined
+[ ] command or manual steps recorded
+[ ] final answer, artifact, trace, or worktree evidence recorded
+[ ] failure path covered or explicitly deferred
+```
+
+## Benchmark
+
+Each release feature must have a benchmark question and quantitative or
+structured comparison evidence.
+
+Do not accept benchmark evidence unless:
+
+```txt
+[ ] primary scenario documented
+[ ] peer baseline documented
+[ ] metric and threshold documented
+[ ] command or artifact documented
+[ ] result recorded honestly
+[ ] caveats recorded when competitors were not directly executed
+```
+
 ## Release
 
 Do not release unless:
@@ -60,6 +91,8 @@ Do not release unless:
 [ ] quality gate passes
 [ ] build passes
 [ ] smoke test passes
+[ ] e2e acceptance recorded for user-visible features
+[ ] benchmark evidence recorded for release features
 [ ] README updated
 [ ] CHANGELOG updated
 [ ] release note written

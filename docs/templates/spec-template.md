@@ -18,6 +18,10 @@
 
 ## Testing plan
 
+## E2E acceptance plan
+
+## Benchmark plan
+
 ## Documentation impact
 
 ## Acceptance criteria

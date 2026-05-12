@@ -64,6 +64,33 @@ export type AgentErrorKind =
 - Tool results are structured.
 - Secrets are redacted.
 
+## Review Handoff Reports
+
+When an agent pauses for human review after code or documentation changes, the
+report must focus on reviewable change points instead of a flat file list.
+
+Each review handoff must include:
+
+- what changed;
+- why it changed;
+- how the implementation works;
+- the exact file and line number for the primary implementation or evidence;
+- why that location is important to review;
+- any related test or documentation evidence when relevant.
+
+Use a Feynman-style explanation as the default: explain the change in plain
+language first, then connect it to the exact code path and tests. A reviewer who
+has not held the whole diff in their head should still understand what changed,
+why the design was chosen, and how to verify it.
+
+Prefer short bullets or a table such as:
+
+| What changed             | Why                                          | How                                    | File:line                              | Review focus                                              |
+| ------------------------ | -------------------------------------------- | -------------------------------------- | -------------------------------------- | --------------------------------------------------------- |
+| Added patch policy check | Prevent traversal from being normalized away | Reject `..` path segments before apply | `packages/tools/src/patch-tool.ts:446` | Confirm the policy boundary matches the release contract. |
+
+Do not use a bare "files changed" list as the main review handoff.
+
 ## Runtime Contracts
 
 - Treat model-generated tool input as untrusted external input.

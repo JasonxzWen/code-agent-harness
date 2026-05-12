@@ -4,11 +4,11 @@
 
 说明本次 release 解决的用户问题、核心交付和适用边界。
 
-## 功能清单
+## Feature 验收卡
 
-| 功能 | 用户价值 | 关键入口 | 限制 |
-| ---- | -------- | -------- | ---- |
-|      |          |          |      |
+| Feature | User need / primary scenario | Industry practice | Our approach | Why | How | E2E acceptance | Benchmark | Limitations |
+| ------- | ---------------------------- | ----------------- | ------------ | --- | --- | -------------- | --------- | ----------- |
+|         |                              |                   |              |     |     |                |           |             |
 
 ## 本次变更图
 
@@ -41,6 +41,18 @@ flowchart LR
 | opencode     |          |            |      |
 | OpenClaw     |          |            |      |
 | Hermes Agent |          |            |      |
+
+## E2E 验收
+
+| Scenario | Command / steps | Fixture / input | Expected evidence | Result |
+| -------- | --------------- | --------------- | ----------------- | ------ |
+|          |                 |                 |                   | 未运行 |
+
+## Benchmark
+
+| Question | Metric | Dataset / fixture | Command / artifact | Threshold | Result | Caveat |
+| -------- | ------ | ----------------- | ------------------ | --------- | ------ | ------ |
+|          |        |                   |                    |           | 未运行 |        |
 
 ## 演示
 

@@ -191,8 +191,21 @@ export function App({
         <Box flexDirection="column">
           <Text color="yellow">
             Permission: {pendingPermission.toolName}{" "}
-            {summarizeJson(pendingPermission.input)}
+            {pendingPermission.preview === undefined
+              ? summarizeJson(pendingPermission.input)
+              : pendingPermission.preview.title}
           </Text>
+          {pendingPermission.preview !== undefined ? (
+            <Box flexDirection="column">
+              <Text>{summarizeJson(pendingPermission.preview.summary)}</Text>
+              {pendingPermission.preview.body !== undefined ? (
+                <Text>{pendingPermission.preview.body}</Text>
+              ) : null}
+              {pendingPermission.preview.truncated === true ? (
+                <Text dimColor>Preview truncated.</Text>
+              ) : null}
+            </Box>
+          ) : null}
           <Text>Approve? y/N</Text>
         </Box>
       ) : null}
