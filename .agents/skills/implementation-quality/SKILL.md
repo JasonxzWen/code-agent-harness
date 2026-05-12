@@ -1,35 +1,31 @@
 ---
 name: implementation-quality
-description: Use when implementing approved changes. Ensures coding, tests, docs, quality gates, self-review, and final reporting happen consistently.
+description: 实施已批准变更时使用，确保 coding、tests、docs、quality gates、self-review 和 final report 一致完成。
 ---
 
-Implementation workflow:
+## 语言政策
 
-1. Read the approved spec or release contract.
-2. Inspect relevant files before editing.
-3. Make focused changes only.
-4. Add or update tests for success and failure paths.
-5. Update docs if public behavior changes.
-6. For user-visible feature work, update or add E2E acceptance evidence. Unit
-   tests alone are not enough for a release feature unless the exception is
-   documented.
-7. For release feature work, update benchmark evidence: benchmark question,
-   metric, fixture, command or artifact, threshold, result, peer baseline, and
-   caveats.
-8. Run quality gates:
+- 在本仓库中，面向用户的输出和新增文档使用中文。
+- 代码标识符、命令、路径、包名、API 名称、外部项目名和来源标题保留原文。
+- final reports、review handoffs、release evidence 和 benchmark notes 遵守 `docs/engineering/language-policy.md`。
+
+## 实施工作流
+
+1. 阅读已批准的 spec 或 release contract。
+2. 编辑前检查相关文件。
+3. 只做聚焦变更。
+4. 为 success 和 failure paths 新增或更新测试。
+5. 如果 public behavior 变化，更新 docs。
+6. 对用户可见 feature，更新或新增 E2E acceptance evidence。release feature 不能只靠 unit tests，除非例外已记录。
+7. 对 release feature，更新 benchmark evidence：benchmark question、metric、fixture、command 或 artifact、threshold、result、peer baseline 和 caveats。
+8. 运行 quality gates：
    - `bun run format:check`
    - `bun run lint`
    - `bun run typecheck`
    - `bun run test`
    - `bun run smoke`
-9. Fix failures if possible.
-10. Self-review the diff using `docs/engineering/code-review.md`.
-11. Return final report with review-focused change points, file and line number
-    references, quality gate table, self-review, limitations, and next step.
-    Each change point must explain what changed, why it changed, and how it works
-    in plain language before pointing to the implementation. Treat this as a
-    Feynman-style handoff: a reviewer should understand the change without first
-    reading the whole diff. Do not use a bare files-changed list as the main
-    handoff when asking for human review.
+9. 尽可能修复失败。
+10. 使用 `docs/engineering/code-review.md` 自审 diff。
+11. 返回最终汇报，包含 review-focused change points、file and line number references、quality gate table、self-review、limitations 和 next step。每个 change point 必须用 plain language 说明 what changed、why changed、how it works，再指向实现位置。这是 Feynman-style handoff：reviewer 不需要先读完整 diff，也应能理解变更、设计选择和验证方式。请求人工审查时，不要使用 bare files-changed list 作为主交接。
 
-Do not claim a command passed unless it actually passed.
+不要声称未实际运行的命令通过。

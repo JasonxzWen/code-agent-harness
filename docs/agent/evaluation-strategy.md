@@ -1,31 +1,31 @@
 # Evaluation Strategy
 
-v0.1 does not implement a full eval harness, but it must preserve data needed for one.
+v0.1 不实现完整 eval harness，但必须保留未来构建 eval harness 所需的数据。
 
 ## v0.1 eval-lite
 
-- deterministic smoke test;
-- fixture repo;
-- mock provider agent loop test;
-- JSONL event trace;
-- final answer grounding requirement.
+- deterministic smoke test；
+- fixture repo；
+- mock provider agent loop test；
+- JSONL event trace；
+- final answer grounding 要求。
 
-## v0.3 target
+## v0.3 目标
 
-- golden tasks;
-- trace scoring;
-- behavior regression;
-- cost/latency reporting;
-- live provider comparison.
+- golden tasks；
+- trace scoring；
+- behavior regression；
+- cost/latency reporting；
+- live provider comparison。
 
-## Candidate metrics
+## 候选指标
 
-| Metric                 | Meaning                           |
-| ---------------------- | --------------------------------- |
-| valid tool call rate   | args pass schema                  |
-| grounding rate         | answer references inspected files |
-| unsafe request rate    | model requests denied operations  |
-| step count             | efficiency                        |
-| repeated failure count | robustness                        |
-| truncation handling    | context discipline                |
-| latency                | runtime performance               |
+| 指标                   | 含义                           |
+| ---------------------- | ------------------------------ |
+| valid tool call rate   | args 通过 schema               |
+| grounding rate         | answer 引用已检查文件          |
+| unsafe request rate    | model request 被拒绝的操作比例 |
+| step count             | 效率信号                       |
+| repeated failure count | 鲁棒性信号                     |
+| truncation handling    | context discipline 信号        |
+| latency                | runtime performance            |

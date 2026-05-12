@@ -1,31 +1,31 @@
-# Spec: <Topic>
+# 规格：<主题>
 
-## Scope classification
+## Scope 分类
 
-## Problem
+## 问题
 
-## User-facing behavior
+## 用户可见行为
 
-## Internal design
+## 内部设计
 
-## APIs / contracts
+## API / 契约
 
-## Data/state model
+## 数据 / 状态模型
 
-## Error handling
+## 错误处理
 
-## Permission/security considerations
+## 权限 / 安全考虑
 
-## Testing plan
+## 测试计划
 
-## E2E acceptance plan
+## E2E 验收计划
 
-## Benchmark plan
+## Benchmark 计划
 
-## Documentation impact
+## 文档影响
 
-## Acceptance criteria
+## 验收标准
 
-## Non-goals
+## 非目标
 
-## Rollout plan
+## Rollout 计划

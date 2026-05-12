@@ -116,6 +116,10 @@ async function preflightPatch(
   input: ApplyPatchInput,
   context: ToolExecutorContext
 ): Promise<PatchPreflight> {
+  // What: apply_patch 的预检阶段集中完成解析、安全策略、dirty-file 检查和
+  // applicability 检查。Why: permission prompt 只能展示已经通过 deterministic
+  // policy 的 diff，用户批准不能覆盖安全边界。How: execute 阶段会再次调用本函数，
+  // 因此 approval 等待期间的工作区变化也会被重新发现。
   const parsed = parsePatch(input.patch);
   const cwd = await resolvePatchCwd(context.repoRoot, input.cwd);
   await assertPatchPathsAllowed(context.repoRoot, cwd, parsed.changes);
@@ -147,6 +151,9 @@ async function resolvePatchCwd(
 }
 
 function parsePatch(patch: string): ParsedPatch {
+  // What: 只解析普通文本 unified diff，并统计文件、增删行和 hunk 消耗。Why:
+  // 模型生成的 patch 是不可信输入，不能把格式判断完全交给 `git apply`。How:
+  // 先拒绝二进制和超限，再逐行维护 PatchDraft，最后校验 hunk 计数归零。
   const patchBytes = Buffer.byteLength(patch, "utf8");
   if (patchBytes > MAX_PATCH_BYTES) {
     throw patchPolicyError("Patch exceeds size limit", {
@@ -261,6 +268,9 @@ function parseHunkCounts(line: string): { oldCount: number; newCount: number } {
 }
 
 function consumeHunkLine(draft: PatchDraft | undefined, line: string): boolean {
+  // What: 消耗 hunk body 中的上下文、增加和删除行。Why: 文件头文本可能出现在
+  // hunk 内容里，不能简单用 `---`/`+++` 字符串切分。How: 只有 sawHunk 且剩余
+  // 行数未归零时才按 hunk 内容处理，并同步扣减 declared counts。
   if (
     draft === undefined ||
     !draft.sawHunk ||
@@ -333,6 +343,9 @@ function normalizePatchPath(filePath: string): string {
 }
 
 function pushDraft(changes: PatchFileChange[], draft: PatchDraft | undefined): void {
+  // What: 将一个已解析的 file draft 固化为 PatchFileChange。Why: 这里是
+  // rename/delete/add/modify 判断的最后关口。How: 校验 file header、hunk、计数、
+  // rename policy 和空变更，再把安全的变更摘要交给后续 path policy。
   if (draft === undefined) {
     return;
   }
@@ -431,6 +444,9 @@ async function assertPatchPathsAllowed(
   cwd: string,
   changes: PatchFileChange[]
 ): Promise<void> {
+  // What: 对 patch touched files 做 repo-root、secret 和 symlink policy。Why:
+  // path traversal 可以藏在 diff header 或 symlink path 中，必须在写入前解析真实路径。
+  // How: 先检查相对路径和 secret，再确认绝对路径仍在 real repo root 内。
   const realRoot = await realpath(repoRoot);
 
   for (const change of changes) {
@@ -470,6 +486,9 @@ async function assertNoSymlinkPath(
   absoluteTarget: string,
   requestedPath: string
 ): Promise<void> {
+  // What: 逐段检查目标路径是否经过 symlink。Why: `path.resolve` 只能规范化字面
+  // 路径，不能防止 repo 内 symlink 指向 repo 外。How: 从 realRoot 开始 lstat 每个
+  // segment，遇到 symlink 就 realpath 并拒绝该 patch path。
   const relative = path.relative(realRoot, absoluteTarget);
   const segments = relative.split(path.sep).filter((segment) => segment.length > 0);
   let current = realRoot;
@@ -500,6 +519,9 @@ async function assertTouchedFilesClean(
   cwd: string,
   changes: PatchFileChange[]
 ): Promise<void> {
+  // What: 拒绝修改已经 dirty 的 touched files。Why: agent 不应覆盖用户或其他工具
+  // 的未提交工作。How: 对 patch 涉及的文件运行 scoped `git status --porcelain`，
+  // 只要有输出就返回 patch_policy_violation。
   const files = changes.map((change) => change.path);
   const result = await git(cwd, ["status", "--porcelain", "--", ...files]);
   if (result.exitCode !== 0) {
@@ -520,6 +542,9 @@ async function assertTouchedFilesClean(
 }
 
 async function assertPatchApplies(cwd: string, patch: string): Promise<void> {
+  // What: 在真正写入前运行 `git apply --check`。Why: parser 负责安全边界，
+  // Git 负责 hunk 是否能 clean apply。How: check 失败时返回 policy error，
+  // 避免留下 partial writes。
   const result = await git(cwd, ["apply", "--check", "--whitespace=nowarn", "-"], {
     input: patch
   });
@@ -536,6 +561,9 @@ function buildPreview(
   maxPreviewBytes: number,
   cwd: string
 ): ToolPreview {
+  // What: 生成 permission prompt 使用的 bounded preview。Why: 用户批准前需要看
+  // touched files、diffstat、风险和截断状态。How: summary 放结构化元数据，body 放
+  // UTF-8 安全截断后的 diff 文本。
   const preview = truncateUtf8(patch, maxPreviewBytes);
   const additions = parsed.changes.reduce((sum, change) => sum + change.additions, 0);
   const deletions = parsed.changes.reduce((sum, change) => sum + change.deletions, 0);
@@ -560,6 +588,8 @@ function truncateUtf8(
   value: string,
   maxBytes: number
 ): { text: string; truncated: boolean } {
+  // What: 按字节限制输出，同时保持 UTF-8 字符串可解码。Why: preview/trace
+  // 需要明确大小边界。How: Buffer 截断后再按 utf8 解码，Node 会处理半个字符边界。
   const buffer = Buffer.from(value, "utf8");
   if (buffer.byteLength <= maxBytes) {
     return {
@@ -579,6 +609,9 @@ async function git(
   args: string[],
   options: { input?: string } = {}
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  // What: patch tool 内部唯一的 Git 执行入口。Why: 写入必须使用结构化 argv，
+  // 不能开放给模型任意 shell。How: shell=false、reject=false，并通过 stdin
+  // 传入 patch 内容。
   const execaOptions = {
     cwd,
     reject: false,

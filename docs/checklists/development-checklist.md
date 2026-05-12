@@ -1,6 +1,6 @@
 # Development Checklist
 
-## Before coding
+## Coding 前
 
 ```txt
 [ ] scope classified
@@ -15,7 +15,7 @@
 [ ] release blocker status recorded
 ```
 
-## During coding
+## Coding 期间
 
 ```txt
 [ ] relevant files inspected
@@ -30,7 +30,7 @@
 [ ] benchmark artifacts updated if release metrics changed
 ```
 
-## After coding
+## Coding 后
 
 ```txt
 [ ] format check

@@ -1,61 +1,61 @@
-# Acceptance Criteria
+# 验收标准
 
-Acceptance criteria are defined across five areas.
+验收标准分为五个区域。
 
 ## Functional
 
-- CLI starts.
-- User can submit a task.
-- Agent creates a run ID.
-- Provider receives messages and tools.
-- Tool calls normalize into internal calls.
-- Tool inputs validate through schemas.
-- Safe repo files can be listed/read/searched.
-- Git status works read-only.
-- Restricted command execution requests permission.
-- Final answer cites inspected paths.
-- JSONL trace is written.
-- Run can be aborted.
+- CLI 可以启动。
+- 用户可以提交 task。
+- Agent 创建 run ID。
+- Provider 接收 messages 和 tools。
+- Tool calls 归一化为 internal calls。
+- Tool inputs 通过 schemas 验证。
+- 安全的 repo files 可以 list/read/search。
+- Git status 以 read-only 方式工作。
+- 受限 command execution 会请求 permission。
+- Final answer 引用已 inspected paths。
+- JSONL trace 被写入。
+- Run 可以 abort。
 
 ## Safety
 
-- Path traversal is blocked.
-- Symlink escape is blocked.
-- Secret files are denied.
-- Binary files are denied.
-- Destructive commands are denied.
-- Output is bounded and truncation is explicit.
-- No write-capable tool exists in v0.1.
-- Logs do not include secrets or API keys.
+- 阻止 path traversal。
+- 阻止 symlink escape。
+- 拒绝 secret files。
+- 拒绝 binary files。
+- 拒绝 destructive commands。
+- Output 有边界，且 truncation 显式。
+- v0.1 不存在 write-capable tool。
+- Logs 不包含 secrets 或 API keys。
 
 ## Engineering
 
-- strict typecheck passes;
-- lint passes;
-- format check passes;
-- build passes;
-- tests pass;
-- smoke passes;
-- package boundaries hold;
-- schemas exist for config/tool/event contracts.
+- strict typecheck passes；
+- lint passes；
+- format check passes；
+- build passes；
+- tests pass；
+- smoke passes；
+- package boundaries hold；
+- config/tool/event contracts 有 schemas。
 
 ## Documentation
 
-- README complete;
-- charter complete;
-- roadmap complete;
-- v0.1 architecture complete;
-- ADRs complete;
-- release note complete;
-- testing strategy complete;
-- tool and permission docs complete.
+- README complete；
+- charter complete；
+- roadmap complete；
+- v0.1 architecture complete；
+- ADRs complete；
+- release note complete；
+- testing strategy complete；
+- tool and permission docs complete；
+- 从 `v0.2.0` 开始，新增 release-facing docs 使用中文正文。
 
 ## E2E Acceptance
 
-User-visible features must prove the complete user workflow, not only internal
-units.
+User-visible features 必须证明完整 user workflow，而不是只验证内部 units。
 
-Do not accept a release feature unless:
+除非满足以下条件，否则不要接受 release feature：
 
 ```txt
 [ ] user-level scenario defined
@@ -67,10 +67,9 @@ Do not accept a release feature unless:
 
 ## Benchmark
 
-Each release feature must have a benchmark question and quantitative or
-structured comparison evidence.
+每个 release feature 必须有 benchmark question，以及 quantitative 或 structured comparison evidence。
 
-Do not accept benchmark evidence unless:
+除非满足以下条件，否则不要接受 benchmark evidence：
 
 ```txt
 [ ] primary scenario documented
@@ -83,11 +82,11 @@ Do not accept benchmark evidence unless:
 
 ## Release
 
-Do not release unless:
+除非满足以下条件，否则不要 release：
 
 ```txt
 [ ] scope matches release contract
-[ ] no v0.2+ feature slipped in
+[ ] no out-of-scope feature slipped in
 [ ] quality gate passes
 [ ] build passes
 [ ] smoke test passes

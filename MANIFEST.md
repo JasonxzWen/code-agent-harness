@@ -1,6 +1,6 @@
 # Public Repository Manifest
 
-This manifest lists files intended to be committed to the public repository.
+本 manifest 列出计划提交到 public repository 的文件。
 
 ## Root
 

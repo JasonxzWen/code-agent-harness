@@ -7,6 +7,8 @@ if (
   process.env.OPENAI_API_KEY === undefined ||
   process.env.OPENAI_API_KEY.length === 0
 ) {
+  // What: live smoke 没有 API key 时显式 skipped。Why: release quality gate 不能被
+  // 外部凭证可用性阻塞。How: 输出 skipped 并以 0 退出，避免误报失败或通过真实调用。
   console.log("smoke:live skipped: OPENAI_API_KEY is not set");
   process.exit(0);
 }
@@ -18,6 +20,9 @@ const tracePath = path.resolve(
 );
 
 const state = await runAgentTask({
+  // What: live smoke 走真实 OpenAI provider 和默认 tool registry。Why: 它验证
+  // provider boundary，但仍使用 tiny fixture 控制风险。How: maxSteps 有上限，trace
+  // 写入本地 `.agent-harness/traces`。
   task: "Explain this repository and cite inspected paths.",
   repoRoot,
   provider: createOpenAIProviderFromEnv(process.env.OPENAI_MODEL),

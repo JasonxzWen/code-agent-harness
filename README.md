@@ -1,49 +1,33 @@
 # Code Agent Harness
 
-A release-driven TypeScript coding agent harness for real-world repositories.
+面向真实仓库的 release-driven TypeScript coding agent harness。
 
-`code-agent-harness` is a terminal-first developer tool for building and
-evolving coding agents with explicit runtime contracts: agent loops, tool
-calling, safe repository inspection, permissions, context management, trace
-logging, and evaluation readiness.
+`code-agent-harness` 是一个 terminal-first 开发者工具，用明确的运行时契约来构建和演进 coding agent：agent loop、tool calling、安全仓库检查、权限、上下文管理、trace logging 和 evaluation readiness。
 
-## What it is
+## 它是什么
 
-- a local coding agent harness;
-- a terminal-first developer tool;
-- a TypeScript agent runtime;
-- a tool-calling system with validated schemas;
-- a permission-aware repository inspection workflow;
-- a release-driven engineering project.
+- 本地 coding agent harness；
+- terminal-first 开发者工具；
+- TypeScript agent runtime；
+- 带 schema 校验的 tool-calling 系统；
+- permission-aware 仓库检查工作流；
+- release-driven 工程项目。
 
-## What it is not
+## 它不是什么
 
-- not a chatbot wrapper;
-- not a demo website;
-- not a general assistant;
-- not a Devin clone;
-- not edit-capable in the current v0.1 release;
-- not an auto-commit or auto-PR bot.
+- 不是 chatbot wrapper；
+- 不是 demo website；
+- 不是 general assistant；
+- 不是 Devin clone；
+- 不是 auto-commit 或 auto-PR bot；
+- 当前写入能力只限 `v0.2.0` 的受控 `apply_patch` workflow。
 
-## Current release
+## 当前 release
 
-Current release: `v0.1.0 Minimal Coding Agent`
+当前已交付基线：`v0.2.0 Patch-capable Agent`
 
 ```txt
-User Task
-→ Agent Loop
-→ Tool Calling
-→ Safe Repo Read
-→ Grounded Final Response
-→ JSONL Trace
-```
-
-## In Development
-
-Target: `v0.2.0 Patch-capable Agent`
-
-```txt
-User Task
+用户任务
 -> Agent Loop
 -> Tool Calling
 -> Safe Repo Read
@@ -54,18 +38,21 @@ User Task
 -> JSONL Trace
 ```
 
-v0.2 adds one controlled write tool:
+`v0.2.0` 新增一个受控写入工具：
 
 ```txt
 apply_patch: ask
 ```
 
-`apply_patch` preflights unified diffs, rejects deterministic policy failures,
-shows a preview before approval, revalidates before writing, and writes only to
-the working tree. It does not stage, commit, push, add sandboxing, or broaden
-`run_command`.
+`apply_patch` 会预检 unified diff、拒绝 deterministic policy failures、在批准前展示 preview、写入前再次校验，并且只写工作区。它不会 stage、commit、push，不会新增 sandbox，也不会放宽 `run_command`。
 
-## Quickstart
+## 正在规划
+
+当前文档迁移目标：`v0.2.1 Chinese-first Repository Migration`
+
+`v0.2.1` 只迁移仓库文档和流程契约，目标是让 release docs、research、spec、ADR、engineering standards、checklists、agent docs、templates、skills、README、CHANGELOG 和 `AGENTS.md` 默认使用中文正文。当前全仓 Markdown 文档已完成中文优先迁移；代码标识符、命令、路径、包名、API 名称、外部项目名和引用标题保留原文。
+
+## 快速开始
 
 ```bash
 bun install
@@ -73,37 +60,36 @@ bun run build
 bun run dev -- --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
 ```
 
-During an active TUI run, press `q` or `Ctrl+C` to abort the run.
+TUI 运行中可按 `q` 或 `Ctrl+C` 中止 run。
 
-The build command emits `dist/agent-harness.js`. After building, run the CLI
-bundle with:
+构建命令会生成 `dist/agent-harness.js`。构建后可直接运行 CLI bundle：
 
 ```bash
 bun dist/agent-harness.js --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
 ```
 
-Example task:
+示例任务：
 
 ```txt
 Explain this repository structure and identify the main modules.
 ```
 
-## Architecture
+## 架构
 
 ```txt
 apps/cli
-  └─ Ink TUI
-      └─ packages/core
-          ├─ Agent Controller
-          ├─ Provider Client
-          ├─ Tool Registry
-          ├─ Permission Gate
-          └─ JSONL Event Logger
+  -> Ink TUI
+      -> packages/core
+          -> Agent Controller
+          -> Provider Client
+          -> Tool Registry
+          -> Permission Gate
+          -> JSONL Event Logger
 ```
 
-## Safety model
+## 安全模型
 
-v0.1 defaults:
+v0.1 默认值：
 
 ```txt
 read tools: allow
@@ -111,7 +97,7 @@ restricted commands: ask
 write operations: unavailable
 ```
 
-v0.2 development defaults:
+v0.2 默认值：
 
 ```txt
 read tools: allow
@@ -119,7 +105,7 @@ restricted commands: ask
 apply_patch: ask
 ```
 
-## Development
+## 开发
 
 ```bash
 bun install
@@ -133,7 +119,7 @@ bun run smoke
 bun run quality
 ```
 
-## Workspace
+## 工作区
 
 ```txt
 apps/cli              Ink TUI and user interaction
@@ -144,25 +130,21 @@ fixtures/tiny-ts-repo deterministic smoke-test repository
 scripts               smoke and live smoke entrypoints
 ```
 
-## Current limitations
+## 当前限制
 
-v0.1 is intentionally read-only.
+`v0.2.0` patch support 故意保持窄范围。它不做：
 
-v0.2 patch support is intentionally narrow. It does not:
+- auto-stage、auto-commit、auto-push 或创建 PR；
+- 应用 binary、mode、symlink、rename 或 copy patches；
+- 修改 secret-looking paths；
+- 自动解决 merge conflicts；
+- persistent memory；
+- product-level subagents；
+- MCP integration；
+- sandbox isolation。
 
-- auto-stage, auto-commit, auto-push, or create PRs;
-- apply binary, mode, symlink, rename, or copy patches;
-- modify secret-looking paths;
-- resolve merge conflicts automatically;
-- use persistent memory;
-- run product-level subagents;
-- integrate MCP;
-- provide sandbox isolation.
+Live OpenAI runs 仍继承 `docs/agent/openai-provider.md` 记录的 provider 限制：tool results 作为普通 `user` messages 回传，而不是 provider-native `tool_call_id` messages。
 
-Live OpenAI runs also inherit the current provider limitation documented in
-`docs/agent/openai-provider.md`: tool results are passed back as plain `user`
-messages, not provider-native `tool_call_id` messages.
+## 路线图
 
-## Roadmap
-
-See `docs/roadmap.md`.
+见 `docs/roadmap.md`。

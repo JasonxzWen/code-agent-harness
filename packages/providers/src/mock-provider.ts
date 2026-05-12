@@ -11,6 +11,9 @@ export class MockProvider implements ProviderClient {
   readonly name = "mock";
 
   generate(request: ProviderGenerateRequest): Promise<ProviderResponse> {
+    // What: mock provider 用固定两步模拟真实 agent inspection。Why: smoke 和
+    // agent-loop tests 需要 deterministic provider，不依赖外部 API。How: 先请求
+    // list_files，再根据结果读一个文件，最后返回 grounded final answer。
     const toolMessages = request.messages.filter((message) => message.role === "tool");
 
     if (!hasToolResult(toolMessages, "list_files")) {
@@ -65,6 +68,9 @@ function hasToolResult(messages: AgentMessage[], toolName: string): boolean {
 }
 
 function chooseFileToRead(messages: AgentMessage[]): string {
+  // What: 从 list_files 的 tool result 中选择下一个要读的文件。Why: mock 也要
+  // 模拟“先观察再行动”的 agent loop。How: 优先 package.json，否则读第一个文件，
+  // fallback 到 README.md。
   const listResult = messages
     .map((message) => parseToolResult(message))
     .find((result) => result?.toolName === "list_files");
@@ -81,6 +87,8 @@ function chooseFileToRead(messages: AgentMessage[]): string {
 }
 
 function parseToolResult(message: AgentMessage): ToolExecutionResult | undefined {
+  // What: 解析 core append 的 tool message。Why: mock provider 不应依赖内部状态，
+  // 只通过消息历史决定下一步。How: JSON parse 成功且包含 toolName 时视为 tool result。
   try {
     const parsed = JSON.parse(message.content) as unknown;
     if (isJsonObject(parsed) && typeof parsed.toolName === "string") {

@@ -1,25 +1,21 @@
-# Research: Output Bounds and Truncation
+# 调研：Output Bounds and Truncation
 
 ## Problem
 
-v0.1 tools inspect real repositories, so file reads, searches, git output, and
-command output can exceed the context budget or hide unsafe content in large
-payloads. The release contract requires bounded output and explicit truncation,
-but the project needs a pre-implementation contract for where bounds are
-enforced and how truncation is reported.
+v0.1 tools 会 inspect 真实 repositories，因此 file reads、searches、git output 和 command output 可能超过 context budget，或在大 payload 中隐藏 unsafe content。release contract 要求 bounded output 和 explicit truncation，但项目需要在 implementation 前定义：bounds 在哪里执行，以及 truncation 如何报告。
 
 ## Release relevance
 
-Scope classification: `v0.1 blocker`.
+Scope classification：`v0.1 blocker`。
 
-This work maps to:
+本工作映射到：
 
-- F-07 file listing;
-- F-08 file reading;
-- F-09 search;
-- S-07 output bounds;
-- S-09 redaction;
-- eval-lite trace usefulness.
+- F-07 file listing；
+- F-08 file reading；
+- F-09 search；
+- S-07 output bounds；
+- S-09 redaction；
+- eval-lite trace usefulness。
 
 ## Sources reviewed
 
@@ -32,62 +28,57 @@ This work maps to:
 
 ## Industry practice
 
-Agent systems generally bound tool output before appending it to model context.
-For v0.1, the project should avoid advanced context engineering and keep a
-simple invariant: every tool result is bounded, structured, and explicit about
-truncation.
+Agent systems 通常会在把 tool output append 到 model context 前做边界限制。对 v0.1，本项目应避免 advanced context engineering，保持一个简单 invariant：每个 tool result 都 bounded、structured，并明确说明 truncation。
 
 ## Alternatives considered
 
-| Option                 | Description                            | Decision                                   |
-| ---------------------- | -------------------------------------- | ------------------------------------------ |
-| No bounds              | Return full tool output                | Reject: unsafe and violates S-07           |
-| Prompt-only brevity    | Ask the model to request small outputs | Reject: prompt-only safety is insufficient |
-| Per-tool bounds only   | Each tool truncates independently      | Accept for v0.1                            |
-| Global context planner | Rank and budget all context centrally  | Defer to v0.4                              |
+| Option                 | Description                        | Decision                        |
+| ---------------------- | ---------------------------------- | ------------------------------- |
+| No bounds              | 返回完整 tool output               | 拒绝：unsafe 且违反 S-07        |
+| Prompt-only brevity    | 要求 model 主动请求 small outputs  | 拒绝：prompt-only safety 不足够 |
+| Per-tool bounds only   | 每个 tool 独立 truncate            | v0.1 采用                       |
+| Global context planner | 中央化 rank 和 budget 全部 context | 延后到 v0.4                     |
 
 ## Trade-off matrix
 
-| Criterion           | Per-tool bounds | Global planner |
+| Criterion 指标      | Per-tool bounds | Global planner |
 | ------------------- | --------------- | -------------- |
-| v0.1 simplicity     | High            | Low            |
-| Safety              | High            | High           |
-| Context quality     | Medium          | High           |
-| Implementation cost | Low             | High           |
-| Eval readiness      | Medium          | High           |
+| v0.1 simplicity     | 高              | 低             |
+| Safety              | 高              | 高             |
+| Context quality     | 中              | 高             |
+| Implementation cost | 低              | 高             |
+| Eval readiness      | 中              | 高             |
 
 ## Project-specific constraints
 
-- v0.1 must remain tool-driven and read-only.
-- No embeddings, repo map, ranking system, or persistent index.
-- Tool output must be safe to append to the agent loop.
-- Truncation metadata must be present in structured results and traces.
-- Redaction must happen before sensitive values can be written to trace logs.
+- v0.1 必须保持 tool-driven 和 read-only。
+- 不使用 embeddings、repo map、ranking system 或 persistent index。
+- Tool output 必须可以安全 append 到 agent loop。
+- Truncation metadata 必须出现在 structured results 和 traces 中。
+- Redaction 必须在 sensitive values 写入 trace logs 前完成。
 
 ## Recommendation
 
-Use per-tool output limits for v0.1:
+v0.1 使用 per-tool output limits：
 
-- `list_files` limits file count and reports `truncated`;
-- `read_file` limits bytes and reports size metadata;
-- `search_repo` limits matches and snippets;
-- `git_status` returns structured status, not raw unbounded output;
-- `run_command` enforces timeout and output length.
+- `list_files` 限制 file count 并报告 `truncated`；
+- `read_file` 限制 bytes 并报告 size metadata；
+- `search_repo` 限制 matches 和 snippets；
+- `git_status` 返回 structured status，而不是 raw unbounded output；
+- `run_command` 强制 timeout 和 output length。
 
-Every bounded tool result must expose enough metadata for the final answer to
-avoid overstating completeness.
+每个 bounded tool result 都必须暴露足够 metadata，让 final answer 不会夸大 completeness。
 
 ## Acceptance criteria impacted
 
-- F-07 stable, bounded file list.
-- F-08 safe text file reads.
-- F-09 bounded search snippets.
-- S-07 explicit truncation metadata.
-- S-09 trace redaction.
+- F-07 stable, bounded file list。
+- F-08 safe text file reads。
+- F-09 bounded search snippets。
+- S-07 explicit truncation metadata 已覆盖。
+- S-09 trace redaction。
 
 ## Open questions
 
-- Should the first release use one shared output metadata shape for every tool,
-  or allow tool-specific metadata?
-- Should final answers be required to mention truncation when relevant?
-- Should command output use byte limits, character limits, or both?
+- 第一个 release 是否为每个 tool 使用同一个 shared output metadata shape，还是允许 tool-specific metadata？
+- Final answers 在相关时是否必须提及 truncation？
+- Command output 应使用 byte limits、character limits，还是两者都用？

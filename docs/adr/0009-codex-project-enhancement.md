@@ -1,36 +1,36 @@
 # ADR-0009: Codex Project Enhancement
 
-## Status
+## 状态
 
-Accepted
+已接受
 
-## Context
+## 背景
 
-The project needs explicit architecture decisions that can be reviewed and revisited.
+项目需要可 review、可 revisit 的显式 architecture decisions。
 
-## Decision
+## 决策
 
-Use Codex project config, rules, hooks, skills, and custom subagents to improve development workflow without making those mechanisms product features.
+使用 Codex project config、rules、hooks、skills 和 custom subagents 改善 development workflow，但不把这些机制变成 product features。
 
-## Alternatives considered
+## 已考虑的备选方案
 
-- Do nothing and rely on ad hoc convention.
-- Encode the decision only in prompts.
-- Record the decision in an ADR.
+- 什么都不做，依赖 ad hoc convention。
+- 只在 prompts 中编码该决策。
+- 在 ADR 中记录该决策。
 
 ## Trade-offs
 
-Pros:
+Pros：
 
-- decision is auditable;
-- future contributors can understand why the project is shaped this way;
-- release scope stays stable.
+- decision 可审计；
+- future contributors 能理解项目为什么这样成形；
+- release scope 保持稳定。
 
-Cons:
+Cons：
 
-- creates documentation overhead;
-- stale ADRs must be maintained.
+- 增加 documentation overhead；
+- stale ADRs 必须维护。
 
 ## Revisit
 
-Revisit when the related release scope changes or when implementation evidence contradicts the decision.
+当相关 release scope 改变，或 implementation evidence 与该决策冲突时 revisit。

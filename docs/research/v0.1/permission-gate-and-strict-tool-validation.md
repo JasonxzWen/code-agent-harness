@@ -1,23 +1,20 @@
-# Research: Permission Gate and Strict Tool Validation
+# 调研：Permission Gate and Strict Tool Validation
 
 ## Problem
 
-The v0.1 release contract requires restricted commands to pause for approval and
-invalid tool arguments to produce structured errors. The current public docs
-define those goals, but the remaining implementation work needs a tighter
-contract before coding starts.
+v0.1 release contract 要求 restricted commands 暂停等待 approval，并要求 invalid tool arguments 产生 structured errors。当前 public docs 已定义这些目标，但剩余 implementation work 在 coding 前需要更紧的 contract。
 
 ## Release relevance
 
-Scope classification: `v0.1 blocker`.
+Scope classification：`v0.1 blocker`。
 
-This work maps directly to:
+本工作直接映射到：
 
-- F-06 tool validation;
-- F-11 permission prompt;
-- S-05 shell string denial;
-- S-06 destructive command denial;
-- S-08 no write-capable tools.
+- F-06 tool validation；
+- F-11 permission prompt；
+- S-05 shell string denial；
+- S-06 destructive command denial；
+- S-08 no write-capable tools。
 
 ## Sources reviewed
 
@@ -31,62 +28,52 @@ This work maps directly to:
 
 ## Industry practice
 
-Comparable agent systems separate tool schema validation, permission decisions,
-and execution. The important pattern for v0.1 is not broad automation; it is a
-small deterministic gate that cannot be bypassed by provider output.
+Comparable agent systems 会分离 tool schema validation、permission decisions 和 execution。对 v0.1 来说，关键模式不是 broad automation，而是一个不能被 provider output 绕过的小型 deterministic gate。
 
 ## Alternatives considered
 
-| Option                                | Description                                       | Decision                                         |
-| ------------------------------------- | ------------------------------------------------- | ------------------------------------------------ |
-| Deny all restricted commands          | Keep `run_command` unavailable in practice        | Reject: fails F-11                               |
-| Prompt-only permission                | Tell the model to ask before commands             | Reject: prompt-only safety is a project non-goal |
-| Tool registry owns permission         | Registry denies or executes based on context only | Reject: lacks CLI pause and approval flow        |
-| Core permission gate before execution | Agent loop asks a gate before restricted tools    | Accept                                           |
+| Option                                | Description                                  | Decision                                     |
+| ------------------------------------- | -------------------------------------------- | -------------------------------------------- |
+| Deny all restricted commands          | 实际上禁用 `run_command`                     | 拒绝：不满足 F-11                            |
+| Prompt-only permission                | 要求 model 在 commands 前主动询问            | 拒绝：prompt-only safety 是 project non-goal |
+| Tool registry owns permission         | Registry 只基于 context 决定 deny 或 execute | 拒绝：缺少 CLI pause 和 approval flow        |
+| Core permission gate before execution | Agent loop 在 restricted tools 前询问 gate   | 采用                                         |
 
 ## Trade-off matrix
 
 | Criterion            | Deny all | Prompt-only | Core gate |
 | -------------------- | -------- | ----------- | --------- |
-| Meets F-11           | No       | No          | Yes       |
-| Deterministic safety | High     | Low         | High      |
-| CLI complexity       | Low      | Low         | Medium    |
-| Testability          | Medium   | Low         | High      |
-| v0.1 scope fit       | Partial  | No          | Yes       |
+| Meets F-11           | 否       | 否          | 是        |
+| Deterministic safety | 高       | 低          | 高        |
+| CLI complexity       | 低       | 低          | 中        |
+| Testability          | 中       | 低          | 高        |
+| v0.1 scope fit       | 部分     | 否          | 是        |
 
 ## Project-specific constraints
 
-- v0.1 remains read-only.
-- No write-capable tool may be introduced.
-- `packages/core` must not import Ink or provider SDK types.
-- `packages/tools` must not call providers.
-- CLI may render permission prompts, but tool execution stays outside CLI.
-- Model-generated tool input must be validated with Zod before policy or
-  execution.
+- v0.1 保持 read-only。
+- 不得引入 write-capable tool。
+- `packages/core` 不能 import Ink 或 provider SDK types。
+- `packages/tools` 不能 call providers。
+- CLI 可以 render permission prompts，但 tool execution 留在 CLI 之外。
+- Model-generated tool input 必须先用 Zod validation，再进入 policy 或 execution。
 
 ## Recommendation
 
-Define a `PermissionGate` contract in core and route every tool call through it
-before execution. Read-only tools default to `allow`; `run_command` defaults to
-`ask`; dangerous or out-of-scope operations return `deny`.
+在 core 中定义 `PermissionGate` contract，并让每个 tool call 在 execution 前通过它。Read-only tools 默认 `allow`；`run_command` 默认 `ask`；dangerous 或 out-of-scope operations 返回 `deny`。
 
-Tighten tool input schemas so unknown fields are rejected rather than silently
-stripped. The runtime JSON schema and Zod schema must agree on
-`additionalProperties: false`.
+收紧 tool input schemas，使 unknown fields 被 reject，而不是 silently stripped。runtime JSON schema 和 Zod schema 必须对 `additionalProperties: false` 保持一致。
 
 ## Acceptance criteria impacted
 
-- F-06: invalid or extra tool args return `tool_validation_error`.
-- F-11: restricted commands pause for approval.
-- S-05: shell strings are denied before execution.
-- S-06: destructive commands are denied before execution.
-- S-08: no write-capable tool exists.
+- F-06：invalid 或 extra tool args 返回 `tool_validation_error`。
+- F-11：restricted commands pause for approval 已覆盖。
+- S-05：shell strings 在 execution 前被 denied。
+- S-06：destructive commands 在 execution 前被 denied。
+- S-08：不存在 write-capable tool。
 
 ## Open questions
 
-- Should v0.1 support one-time approval only, or per-run approval caching?
-- Should declined commands be appended to model context as tool results or run
-  events only?
-- Should live provider runs be allowed to request `run_command`, or should the
-  first release keep command approval reachable only through deterministic
-  tests?
+- v0.1 应只支持 one-time approval，还是 per-run approval caching？
+- Declined commands 应 append 到 model context 作为 tool results，还是只作为 run events？
+- Live provider runs 是否允许请求 `run_command`，还是第一版只通过 deterministic tests 触达 command approval？

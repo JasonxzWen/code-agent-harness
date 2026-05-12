@@ -1,28 +1,25 @@
-# Spec: Provider Tool Call Normalization
+# 规格：Provider Tool Call Normalization
 
 ## Scope classification
 
 `v0.1 blocker`
 
-This spec defines the provider boundary before implementation. It does not
-authorize coding until implementation is explicitly requested.
+本 spec 在 implementation 前定义 provider boundary。除非明确请求 implementation，否则它不授权 coding。
 
 ## Problem
 
-The agent loop must work with one internal provider response contract. OpenAI
-SDK responses and future provider responses must not leak into
-`packages/core`.
+Agent loop 必须使用单一 internal provider response contract。OpenAI SDK responses 和 future provider responses 不得泄漏到 `packages/core`。
 
 ## User-facing behavior
 
-- Users see provider errors as structured run failures.
-- Valid provider tool calls result in tool execution attempts.
-- Unsupported provider tool-call variants fail safely and do not execute tools.
-- Final answers remain grounded in inspected paths.
+- Users 看到的 provider errors 是 structured run failures。
+- Valid provider tool calls 会触发 tool execution attempts。
+- Unsupported provider tool-call variants fail safely，且不会 execute tools。
+- Final answers 仍基于 inspected paths grounded。
 
 ## Internal design
 
-Provider adapters convert SDK responses into:
+Provider adapters 将 SDK responses 转换为：
 
 ```ts
 export type ProviderResponse =
@@ -30,7 +27,7 @@ export type ProviderResponse =
   | { type: "final"; content: string };
 ```
 
-The internal tool call shape remains:
+Internal tool call shape 保持：
 
 ```ts
 export interface ToolCall {
@@ -40,98 +37,96 @@ export interface ToolCall {
 }
 ```
 
-The core loop must not inspect SDK fields such as OpenAI `tool_calls`,
-`function`, or provider-specific content parts.
+Core loop 不得 inspect SDK fields，例如 OpenAI `tool_calls`、`function` 或 provider-specific content parts。
 
 ## APIs / contracts
 
-Provider adapter responsibilities:
+Provider adapter responsibilities：
 
-- accept normalized agent messages and tool specs;
-- call the provider SDK;
-- parse supported provider tool-call variants;
-- convert arguments to `JsonObject`;
-- return internal `ProviderResponse`;
-- convert provider failures to structured provider errors.
+- 接受 normalized agent messages 和 tool specs；
+- call the provider SDK；
+- 解析 supported provider tool-call variants；
+- 将 arguments 转为 `JsonObject`；
+- 返回 internal `ProviderResponse`；
+- 将 provider failures 转为 structured provider errors。
 
-Core responsibilities:
+Core responsibilities：
 
-- build provider-neutral messages;
-- pass provider-neutral tool specs;
-- process only internal `ProviderResponse`;
-- leave SDK-specific parsing to providers.
+- build provider-neutral messages；
+- 传递 provider-neutral tool specs；
+- 只处理 internal `ProviderResponse`；
+- 把 SDK-specific parsing 留给 providers。
 
 ## Data/state model
 
-Provider normalization must preserve:
+Provider normalization 必须保留：
 
-- provider call id;
-- tool name;
-- parsed JSON object input;
-- final content;
-- provider error kind and message.
+- provider call id；
+- tool name；
+- parsed JSON object input；
+- final content；
+- provider error kind and message。
 
-Provider-specific raw response objects must not be stored in run state.
+Provider-specific raw response objects 不得存入 run state。
 
 ## Error handling
 
-| Case                          | Required behavior                                                  |
-| ----------------------------- | ------------------------------------------------------------------ |
-| Malformed tool arguments      | Normalize to empty object only if tested, otherwise provider error |
-| Unsupported tool-call variant | Return provider error or explicit skipped result                   |
-| Missing tool name             | Return provider error                                              |
-| Empty final response          | Return final with empty string only if documented                  |
-| SDK request failure           | Return `provider_error`                                            |
+| Case                          | Required behavior                                           |
+| ----------------------------- | ----------------------------------------------------------- |
+| Malformed tool arguments      | 仅在已测试时 normalize to empty object，否则 provider error |
+| Unsupported tool-call variant | 返回 provider error 或 explicit skipped result              |
+| Missing tool name             | 返回 provider error                                         |
+| Empty final response          | 仅在已记录时返回 empty string final                         |
+| SDK request failure           | 返回 `provider_error`                                       |
 
-## Permission/security considerations
+## Permission / security considerations
 
-- Normalization does not validate tool safety.
-- Normalized calls still pass through strict tool validation.
-- Provider output cannot bypass permission gates.
-- Raw provider payloads must not be written to trace if they may contain
-  secrets.
+- Normalization 不验证 tool safety。
+- Normalized calls 仍通过 strict tool validation。
+- Provider output 不能绕过 permission gates。
+- Raw provider payloads 如果可能包含 secrets，不得写入 trace。
 
 ## Testing plan
 
-Required tests:
+Required tests：
 
-- OpenAI function tool call maps to internal `ToolCall`;
-- non-object argument payload becomes structured error or tested fallback;
-- unsupported tool-call variant fails safely;
-- final message maps to internal final response;
-- provider errors map to `provider_error`;
-- `packages/core` imports no provider SDK types.
+- OpenAI function tool call 映射到 internal `ToolCall`；
+- non-object argument payload 变成 structured error 或 tested fallback；
+- unsupported tool-call variant 会 fails safely；
+- final message 映射到 internal final response；
+- provider errors 映射到 `provider_error`；
+- `packages/core` imports no provider SDK types。
 
 ## Documentation impact
 
-Update these documents when implementation is complete:
+Implementation 完成后更新这些文档：
 
 - `docs/architecture/v0.1-minimal-coding-agent.md`
 - `docs/agent/tool-protocol.md`
 - `docs/engineering/testing-strategy.md`
-- `docs/adr/0004-provider-abstraction.md`, only if the decision changes
+- `docs/adr/0004-provider-abstraction.md`，仅当 decision 改变时
 
 ## Acceptance criteria
 
-This spec is accepted when:
+满足以下条件时，本 spec 被 accepted：
 
-- F-05 has direct test coverage;
-- provider adapter tests cover success and failure paths;
-- core package boundary checks remain clean;
-- `bun run quality` passes.
+- F-05 有 direct test coverage；
+- provider adapter tests 覆盖 success 和 failure paths；
+- core package boundary checks 保持 clean；
+- `bun run quality` passes。
 
 ## Non-goals
 
-- full Anthropic implementation;
-- streaming tool-call support;
-- MCP tool protocol;
-- provider-specific behavior in core;
-- provider fallback or routing.
+- full Anthropic implementation；
+- streaming tool-call support；
+- MCP tool protocol；
+- core 中的 provider-specific behavior；
+- provider fallback or routing。
 
 ## Rollout plan
 
-1. Add adapter normalization tests with SDK-shaped fixtures.
-2. Ensure OpenAI function tool calls map to internal `ToolCall`.
-3. Define unsupported variant behavior.
-4. Add provider error mapping tests.
-5. Run package-boundary checks and quality gates.
+1. 使用 SDK-shaped fixtures 添加 adapter normalization tests。
+2. 确保 OpenAI function tool calls 映射到 internal `ToolCall`。
+3. 定义 unsupported variant behavior。
+4. 添加 provider error mapping tests。
+5. 运行 package-boundary checks 和 quality gates。

@@ -1,77 +1,73 @@
-# Research and Spec Process
+# Research 和 Spec 流程
 
-Research and specs are used to make design decisions explicit and reproducible.
+Research notes 和 specs 用于让设计决策显式、可复现、可 review。新增 release-facing 文档从 `v0.2.0` 起默认使用中文正文。
 
 ## Research note
 
-Path:
+路径：
 
 ```txt
 docs/research/<release>/<topic>.md
 ```
 
-Template:
+模板：
 
 ```md
-# Research: <Topic>
+# 调研：<主题>
 
-## Problem
+## 问题
 
-## Release relevance
+## Release 相关性
 
-## Sources reviewed
+## 已检查来源
 
 ## Industry scan
 
 ## Industry practice
 
-## Alternatives considered
+## 备选方案
 
 ## Trade-off matrix
 
-## Project-specific constraints
+## 项目约束
 
-## Recommendation
+## 建议
 
-## Acceptance criteria impacted
+## 受影响的验收标准
 
 ## Open questions
 ```
 
-`Industry scan` is required for release work. It must list the current
-mainstream products or projects checked for the release decision. Start with
-OpenAI Codex, Claude Code, and opencode, then add release-relevant peers such as
-Aider, OpenHands, OpenClaw, or Hermes Agent. For each source, record the
-decision signal for this project, not just a link.
+Release work 必须包含 `Industry scan`。该段必须列出本次 release 决策检查过的主流产品或项目。至少从 OpenAI Codex、Claude Code 和 opencode 开始，并按 release 相关性补充 Aider、OpenHands、OpenClaw、Hermes Agent 等 peers。每个 source 都要记录对本项目的 decision signal，而不只是放一个链接。
 
 ## Spec
 
-Path:
+路径：
 
 ```txt
 docs/specs/<release>/<topic>.md
 ```
 
-Template:
+模板：
 
 ```md
-# Spec: <Topic>
+# 规格：<主题>
 
-## Scope classification
+## Scope 分类
 
-## Problem
+## 问题
 
-## User-facing behavior
+## 用户可见行为
 
-## Internal design
+## 内部设计
 
 ## APIs / contracts
 
-## Data/state model
+## Data / state model
 
 ## Error handling
 
-## Permission/security considerations
+## Permission / security considerations
 
 ## Testing plan
 
@@ -90,7 +86,7 @@ Template:
 
 ## Alignment brief
 
-Before implementation, provide a short brief:
+Implementation 前提供简短 brief：
 
 ```md
 ## Alignment Brief
@@ -110,8 +106,6 @@ Before implementation, provide a short brief:
 ### Acceptance criteria
 ```
 
-The brief should recommend a default rather than ask open-ended design questions.
-For release work, the brief must state which industry scan was refreshed and how
-it shaped the recommendation.
-It must also identify the planned E2E acceptance scenario and benchmark question
-for each user-visible feature.
+brief 应给出默认建议，而不是只提出开放式设计问题。Release work 的 brief 必须说明刷新了哪些 industry scan，以及这些发现如何影响推荐方案。
+
+每个 user-visible feature 还必须说明 planned E2E acceptance scenario 和 benchmark question。

@@ -38,10 +38,15 @@ export const runCommandTool: ToolDefinition<z.infer<typeof RunCommandInputSchema
     ["command"]
   ),
   evaluatePolicy(input, context) {
+    // What: permission prompt 前先跑 command policy。Why: 用户批准不能把危险命令
+    // 变安全。How: 只允许 read-only allowlist，并确认 cwd 仍在 repo 内。
     assertCommandAllowed(input.command);
     return resolveSafePath(context.repoRoot, input.cwd).then(() => undefined);
   },
   async execute(input, context) {
+    // What: 执行 approved read-only command 并限制输出。Why: command output 可能
+    // 很大，且 shell token 不能进入执行层。How: shell=false、argv 执行、timeout 和
+    // maxOutputBytes 同时生效。
     assertCommandAllowed(input.command);
     const cwd = await resolveSafePath(context.repoRoot, input.cwd);
     const file = input.command[0];
@@ -82,6 +87,9 @@ export const runCommandTool: ToolDefinition<z.infer<typeof RunCommandInputSchema
 };
 
 function assertCommandAllowed(command: string[]): void {
+  // What: command allowlist 是 run_command 的 deterministic safety boundary。
+  // Why: v0.1/v0.2 不允许模型通过 shell 写文件或执行破坏性命令。How: 先拒绝
+  // shell control tokens，再只接受少量 read-only 命令形状。
   const executable = command[0]?.toLowerCase();
   if (executable === undefined) {
     throw new ToolPolicyError(

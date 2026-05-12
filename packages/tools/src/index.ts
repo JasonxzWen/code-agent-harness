@@ -36,5 +36,8 @@ export function createDefaultToolRegistry(
     runCommandTool
   ]
 ): ToolRegistry {
+  // What: 默认 registry 集中注册 v0.2 可用工具。Why: core/CLI 不应知道每个工具
+  // 的实现细节。How: read tools 默认 allow，`apply_patch` 和 `run_command` 在各自
+  // ToolDefinition 中声明 ask permission。
   return new DefaultToolRegistry(tools);
 }
