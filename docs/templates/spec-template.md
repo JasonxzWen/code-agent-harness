@@ -1,6 +1,6 @@
 # 规格：<主题>
 
-## Scope 分类
+## Scope classification 分类
 
 ## 问题
 

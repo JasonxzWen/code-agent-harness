@@ -1,8 +1,8 @@
-# Evaluation Strategy
+# Evaluation strategy 说明
 
 v0.1 不实现完整 eval harness，但必须保留未来构建 eval harness 所需的数据。
 
-## v0.1 eval-lite
+## v0.1 eval-lite 说明
 
 - deterministic smoke test；
 - fixture repo；

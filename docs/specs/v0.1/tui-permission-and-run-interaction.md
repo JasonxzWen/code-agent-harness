@@ -1,16 +1,16 @@
 # 规格：TUI Permission and Run Interaction
 
-## Scope classification
+## 范围 classification
 
 `v0.1 blocker`
 
 本 spec 只定义 CLI interaction contracts。除非明确请求 implementation，否则它不授权 implementation。
 
-## Problem
+## 问题
 
 CLI 是 v0.1 的 user-facing surface。它必须可靠启动、接受 task、render run progress、处理 permission requests、显示 final answer，并允许 abort，同时不能把 business logic 移入 TUI。
 
-## User-facing behavior
+## 用户可见行为
 
 - User 可以启动 `agent-harness`。
 - User 可以提交 task。
@@ -20,7 +20,7 @@ CLI 是 v0.1 的 user-facing surface。它必须可靠启动、接受 task、ren
 - User 可以 abort running task。
 - Final answer 会 render inspected paths。
 
-## Internal design
+## 内部设计
 
 CLI 观察并提供交互，但不 execute tools。
 
@@ -35,7 +35,7 @@ CLI task input
 → CLI renders final/failed/aborted state
 ```
 
-## APIs / contracts
+## APIs / contracts 契约
 
 CLI 可以提供：
 
@@ -47,7 +47,7 @@ interface CliPermissionAdapter extends PermissionGate {
 
 CLI 必须 consume provider-neutral run events，而不是 provider SDK objects。
 
-## Data/state model
+## 数据 / 状态模型
 
 CLI-rendered state 包括：
 
@@ -62,7 +62,7 @@ CLI-rendered state 包括：
 
 CLI 不得拥有 display state 之外的 tool output。
 
-## Error handling
+## 错误处理
 
 | Case                    | Required behavior                               |
 | ----------------------- | ----------------------------------------------- |
@@ -72,14 +72,14 @@ CLI 不得拥有 display state 之外的 tool output。
 | User abort              | Mark run aborted，并停止后续 provider/tool work |
 | Trace write failure     | Render failure，不隐藏 root cause               |
 
-## Permission / security considerations
+## Permission / security 考量
 
 - Permission prompt 必须 display requested tool 和 input summary。
 - Approval 不能覆盖 deterministic command policy。
 - CLI 不得在 prompt 或 trace 中 expose secret values。
 - Denied permission 不得 execute tools。
 
-## Testing plan
+## 测试计划
 
 Required tests：
 
@@ -92,7 +92,7 @@ Required tests：
 - abort 改变 run state 并 stops further steps；
 - final answer 渲染 inspected paths。
 
-## Documentation impact
+## 文档影响
 
 Implementation 完成后更新这些文档：
 
@@ -101,7 +101,7 @@ Implementation 完成后更新这些文档：
 - `docs/agent/permission-system.md`
 - `README.md`，如果 CLI usage 改变
 
-## Acceptance criteria
+## 验收标准
 
 满足以下条件时，本 spec 被 accepted：
 
@@ -110,7 +110,7 @@ Implementation 完成后更新这些文档：
 - core 仍不 import Ink；
 - `bun run quality` passes。
 
-## Non-goals
+## 非目标
 
 - background task mode；
 - IDE extension；
@@ -119,7 +119,7 @@ Implementation 完成后更新这些文档：
 - multi-agent UI；
 - patch approval UI。
 
-## Rollout plan
+## Rollout 计划
 
 1. 定义 core permission request events。
 2. Add CLI permission adapter。

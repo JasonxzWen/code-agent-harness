@@ -1,4 +1,4 @@
-# Initialization Checklist
+# 初始化清单
 
 ```txt
 [ ] Bun workspace configured

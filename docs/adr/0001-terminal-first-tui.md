@@ -1,4 +1,4 @@
-# ADR-0001: Terminal First TUI
+# ADR-0001：Terminal-first TUI
 
 ## 状态
 
@@ -18,7 +18,7 @@ v0.1 使用 terminal-first Ink TUI，因为 coding agents 主要是 developer to
 - 只在 prompts 中编码该决策。
 - 在 ADR 中记录该决策。
 
-## Trade-offs
+## 取舍
 
 Pros：
 
@@ -31,6 +31,6 @@ Cons：
 - 增加 documentation overhead；
 - stale ADRs 必须维护。
 
-## Revisit
+## 复审条件
 
 当相关 release scope 改变，或 implementation evidence 与该决策冲突时 revisit。

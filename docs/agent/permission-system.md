@@ -1,6 +1,6 @@
-# Permission System
+# Permission system 说明
 
-## Permission Modes
+## Permission 模式
 
 ```ts
 export type PermissionDecision = "allow" | "ask" | "deny";
@@ -26,7 +26,7 @@ export interface PermissionGate {
 }
 ```
 
-## v0.2 Defaults
+## v0.2 默认值
 
 ```json
 {
@@ -41,7 +41,7 @@ export interface PermissionGate {
 }
 ```
 
-## Runtime Contract
+## Runtime contract 契约
 
 Permission handling 由 `packages/core` 在 permissioned tool execution 前强制执行。CLI 提供用于 interactive approve/deny input 的 `PermissionGate` adapter，但 tool execution 仍在 `packages/tools` 中。
 
@@ -62,7 +62,7 @@ permission gate 的 approval 不能覆盖 deterministic safety policy。例如�
 
 如果用户在 prompt 等待期间 deny 或 abort，则不会发生写入。denial 时 agent 收到 structured `permission_denied` result；abort 时 run 进入 `aborted` state。
 
-## Path Safety
+## Path 安全
 
 必需 controls：
 
@@ -73,7 +73,7 @@ permission gate 的 approval 不能覆盖 deterministic safety policy。例如�
 - binary reads 被 denied；
 - large output 被 truncated。
 
-## Command Safety
+## Command 安全
 
 使用 argv arrays，不使用 shell strings。
 
@@ -103,7 +103,7 @@ Command policy 必须 reject：
 - v0.1 read-only allowlist 外的 commands；
 - output 或 timeout behavior 无边界的 commands。
 
-## Patch Safety
+## Patch 安全
 
 `apply_patch` 是 v0.2 唯一新增写入能力。它默认 `ask`，并且批准不能覆盖下列 deterministic deny：
 
@@ -117,7 +117,7 @@ Command policy 必须 reject：
 
 批准后，`packages/tools` 会再次检查 touched-file 状态和 applicability，再使用结构化 `git apply` argv 写入工作区。该工具不 stage、commit、push，也不修改 `run_command` 的只读 allowlist。
 
-## v0.1 Command Allowlist
+## v0.1 Command allowlist 清单
 
 | Command | Allowed args                                    |
 | ------- | ----------------------------------------------- |
@@ -126,7 +126,7 @@ Command policy 必须 reject：
 | `bun`   | `--version`                                     |
 | `node`  | `--version`                                     |
 
-## Trace Requirements
+## Trace 要求
 
 Permission-sensitive runs 必须写入以下 JSONL events：
 

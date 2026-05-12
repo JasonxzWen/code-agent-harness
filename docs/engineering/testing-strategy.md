@@ -28,7 +28,7 @@ Benchmark tests
   -> quantified scenario matrix and release evidence
 ```
 
-## E2E acceptance 规则
+## E2E 验收规则
 
 User-visible release features 不能只靠 unit tests 发布。每个此类 feature 至少需要一条 E2E acceptance path，从 user-level entrypoint 开始，并验证最终可观察证据。
 

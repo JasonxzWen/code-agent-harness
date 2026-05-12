@@ -1,23 +1,23 @@
 # 规格：Output Bounds and Truncation
 
-## Scope classification
+## 范围 classification
 
 `v0.1 blocker`
 
 本 spec 只定义 documentation 和 implementation constraints。除非明确请求 implementation，否则它不授权开始实现。
 
-## Problem
+## 问题
 
 Agent loop 会把 tool results append 到 context，并写入 traces。Unbounded tool output 可能超过 context limits、掩盖 failures，或泄漏 sensitive values。v0.1 要求 bounded output，并带有 explicit truncation metadata。
 
-## User-facing behavior
+## 用户可见行为
 
 - Tool output 足够简洁，可以用于 terminal display 和 model context。
 - Output 被 truncated 时，result 会明确说明。
 - Final answers 不暗示 truncated output 是完整的。
 - Trace files 保留 truncation 和 redaction metadata。
 
-## Internal design
+## 内部设计
 
 每个 tool result 必须包含或可推导：
 
@@ -37,7 +37,7 @@ returned from the tool
 → written to JSONL trace
 ```
 
-## APIs / contracts
+## APIs / contracts 契约
 
 推荐的 shared metadata shape：
 
@@ -54,7 +54,7 @@ export interface ToolOutputMetadata {
 
 Tool-specific output 可以包含额外字段，但 truncation 必须保持 machine-readable。
 
-## Data/state model
+## 数据 / 状态模型
 
 Run state 必须保留：
 
@@ -65,7 +65,7 @@ Run state 必须保留：
 
 Raw unbounded output 不得保留在 run state 或 trace files 中。
 
-## Error handling
+## 错误处理
 
 | Case                            | Required behavior                                   |
 | ------------------------------- | --------------------------------------------------- |
@@ -75,14 +75,14 @@ Raw unbounded output 不得保留在 run state 或 trace files 中。
 | Tool cannot safely bound output | 返回 `tool_execution_error`                         |
 | Command timeout                 | 返回 timeout 或带 bounded output 的 execution error |
 
-## Permission / security considerations
+## Permission / security 考量
 
 - Bounds 不会让 unsafe commands 变安全。
 - Redaction 独立于 truncation 发生。
 - Truncated output 仍必须通过 path 和 secret policy。
 - Command output 即使在 permission approval 后也必须 bounded。
 
-## Testing plan
+## 测试计划
 
 Required tests：
 
@@ -94,7 +94,7 @@ Required tests：
 - trace output 记录 truncation，且不包含 unbounded payload；
 - final answer fixture 能 observe truncation metadata。
 
-## Documentation impact
+## 文档影响
 
 Implementation 完成后更新这些文档：
 
@@ -103,7 +103,7 @@ Implementation 完成后更新这些文档：
 - `docs/engineering/testing-strategy.md`
 - `docs/releases/v0.1.0-contract.md`，仅当 public behavior 改变时
 
-## Acceptance criteria
+## 验收标准
 
 满足以下条件时，本 spec 被 accepted：
 
@@ -112,7 +112,7 @@ Implementation 完成后更新这些文档：
 - trace tests 证明 bounded/redacted records；
 - `bun run quality` passes。
 
-## Non-goals
+## 非目标
 
 - repository map；
 - semantic file ranking；
@@ -121,7 +121,7 @@ Implementation 完成后更新这些文档：
 - persistent context index；
 - token-accurate budgeting。
 
-## Rollout plan
+## Rollout 计划
 
 1. 归一化 truncation metadata shape。
 2. 为每个 tool 的 output bounds 添加 tests。

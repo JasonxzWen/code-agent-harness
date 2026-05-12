@@ -2,7 +2,7 @@
 
 验收标准分为五个区域。
 
-## Functional
+## 功能
 
 - CLI 可以启动。
 - 用户可以提交 task。
@@ -17,7 +17,7 @@
 - JSONL trace 被写入。
 - Run 可以 abort。
 
-## Safety
+## 安全
 
 - 阻止 path traversal。
 - 阻止 symlink escape。
@@ -51,7 +51,7 @@
 - tool and permission docs complete；
 - 从 `v0.2.0` 开始，新增 release-facing docs 使用中文正文。
 
-## E2E Acceptance
+## E2E 验收
 
 User-visible features 必须证明完整 user workflow，而不是只验证内部 units。
 

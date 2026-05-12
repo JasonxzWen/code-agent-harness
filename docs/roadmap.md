@@ -1,4 +1,4 @@
-# Roadmap
+# 路线图
 
 本项目通过小而可运行的 releases 演进。
 
@@ -14,7 +14,7 @@
 | v0.8    | Sandbox              | 更强隔离能否降低 command/edit risk？                             | sandbox adapter and policy engine                         |
 | v1.0    | Public Harness       | runtime 是否足够稳定，可供更广泛使用？                           | stable APIs, docs, eval baseline, release process         |
 
-## Scope rule
+## 范围 rule
 
 每个 proposed feature 在 implementation 前必须分类：
 

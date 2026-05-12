@@ -1,4 +1,4 @@
-# ADR-0007: No Memory In V0.1
+# ADR-0007：v0.1 不引入 memory
 
 ## 状态
 
@@ -18,7 +18,7 @@ v0.1 不实现 persistent memory，因为它会引入 privacy、contamination �
 - 只在 prompts 中编码该决策。
 - 在 ADR 中记录该决策。
 
-## Trade-offs
+## 取舍
 
 Pros：
 
@@ -31,6 +31,6 @@ Cons：
 - 增加 documentation overhead；
 - stale ADRs 必须维护。
 
-## Revisit
+## 复审条件
 
 当相关 release scope 改变，或 implementation evidence 与该决策冲突时 revisit。

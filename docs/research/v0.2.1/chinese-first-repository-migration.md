@@ -1,14 +1,14 @@
 # 调研：Chinese-first Repository Migration
 
-## Problem
+## 问题
 
 仓库已有“新增 release-facing 文档从 `v0.2.0` 起使用中文正文”的规则，但 README、CHANGELOG、AGENTS、skills、engineering docs、templates、ADR、research 和 spec 的语言边界仍不统一。`v0.2.1` 需要先定义中文优先迁移策略、验收机制和 benchmark 方法，再决定是否批量迁移历史内容。
 
-## Release Relevance
+## Release 相关性
 
 这是 `v0.2.1 Chinese-first Repository Migration` 的核心 release feature。它影响后续所有文档、规范、release contract、research、spec、checklist、ADR、skills 文档和最终汇报，但不改变产品运行时代码。
 
-## Sources Reviewed
+## 已审阅来源
 
 | Source                              | URL                                                                 | 决策信号                                                                                                                              |
 | ----------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -22,7 +22,7 @@
 | GitHub Docs contributing            | <https://docs.github.com/en/contributing>                           | 成熟开发者文档有内容模型、style guide 和贡献入口；本项目应把中文化要求放进 standards 和 release docs 标准。                           |
 | Read the Docs localization          | <https://docs.readthedocs.com/platform/en/stable/localization.html> | 文档平台建议明确项目语言和翻译项目关系；本项目当前不做双语站点，选择单一中文正文权威源。                                              |
 
-## Industry Scan
+## 行业扫描
 
 | Project                     | 公开语言 / localization 做法                                                        | Repository instruction 做法                                                         | 对本 release 的信号                                                           |
 | --------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
@@ -34,7 +34,7 @@
 | AGENTS.md standard          | 标准本身强调普通 Markdown 和跨 agent 兼容。                                         | README 面向人，AGENTS 面向 agent，可用 nested 文件。                                | 根 `AGENTS.md` 应保持简洁，详细语言政策放在 `docs/engineering/`。             |
 | GitHub Docs / Read the Docs | 成熟 docs 系统将主语言、翻译、style guide、贡献流程分开管理。                       | 通过内容模型和贡献指南控制文档质量。                                                | 当前阶段先做单一中文权威源和 manual audit；多语言流水线暂缓。                 |
 
-## Industry Practice
+## 行业实践
 
 主流 coding agent 项目没有把所有项目文档翻译成多语言的统一做法。更稳定的共性是：
 
@@ -44,7 +44,7 @@
 - 让文档语言政策服务于 agent 行为和 contributor onboarding，而不是作为独立翻译项目。
 - 对多语言文档使用明确的主语言、翻译边界和维护流程，避免多个版本同时成为权威源。
 
-## Alternatives Considered
+## 已考虑备选方案
 
 | Option 选项                               | Benefit 收益             | Cost 成本                                             | Decision 决策 |
 | ----------------------------------------- | ------------------------ | ----------------------------------------------------- | ------------- |
@@ -53,7 +53,7 @@
 | 只在 `AGENTS.md` 写一句中文要求           | 快速                     | 不能指导 release docs、benchmark、templates 和 skills | 不足够        |
 | 先建语言政策、spec、checklist，再分批迁移 | 可审计、scope 小、风险低 | 中文化覆盖率不是本阶段完成                            | 推荐          |
 
-## Trade-off Matrix
+## 取舍矩阵
 
 | Criterion 指标     | Policy-first migration | Bulk translation | Bilingual docs |
 | ------------------ | ---------------------- | ---------------- | -------------- |
@@ -64,7 +64,7 @@
 | Maintenance cost   | 中                     | 高               | 高             |
 | Fits v0.2.1        | 是                     | 否               | 否             |
 
-## Project-specific Constraints
+## 项目特定约束
 
 - `v0.2.1` 不改变产品功能代码。
 - v0.2 PR #6 已合并进 `origin/main`，本 release 可基于 `origin/main` 继续。
@@ -72,7 +72,7 @@
 - 质量门禁必须如实报告；未运行的扫描、E2E 或 benchmark 不能写成通过。
 - 迁移必须保护代码标识符、命令、路径、包名、外部项目名、引用标题、API 名称和 trace/event 名称。
 
-## Recommendation
+## 建议
 
 采用 policy-first migration：
 
@@ -81,14 +81,14 @@
 3. 后续经批准后按类别迁移：模板、release-facing docs、engineering docs、agent/tool docs、skills、README/CHANGELOG/AGENTS、历史 ADR/research/spec。
 4. 在实现自动扫描前，使用 manual audit benchmark 量化覆盖率和剩余英文正文清单。
 
-## Acceptance Criteria Impacted
+## 受影响的验收标准
 
 - 后续新增文档正文默认中文。
 - final report 和 review handoff 默认中文解释，保留必要英文表头或代码标识符。
 - release docs 必须记录语言审计、E2E 场景、benchmark question、metrics、manual audit 方法和剩余 gap。
 - 任何批量迁移必须先保护 Markdown 表格、Mermaid、命令块和链接。
 
-## Open Questions
+## 开放问题
 
 - 是否需要在后续阶段实现自动文档语言扫描脚本。
 - README 和 CHANGELOG 已在 `v0.2.1` 第一批迁移中处理；后续问题是是否需要更细的历史条目复审。

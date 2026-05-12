@@ -130,6 +130,85 @@ const allowedPhrases = [
   "README.md"
 ];
 
+const blockedEnglishHeadings = new Set(
+  [
+    "acceptance",
+    "acceptance criteria",
+    "acceptance criteria impacted",
+    "alignment brief",
+    "alternatives considered",
+    "apis / contracts",
+    "benchmark plan",
+    "boundaries",
+    "codebase patterns",
+    "components",
+    "contract blockers",
+    "core loop",
+    "data / state model",
+    "data/state model",
+    "design summary",
+    "documentation impact",
+    "e2e acceptance",
+    "e2e acceptance plan",
+    "error handling",
+    "findings first",
+    "functional",
+    "functional acceptance",
+    "goals",
+    "how",
+    "implementation plan",
+    "industry practice",
+    "industry scan",
+    "internal design",
+    "known limitations",
+    "manual audit benchmark",
+    "mission",
+    "next step",
+    "no findings",
+    "non-findings",
+    "non-goals",
+    "objective",
+    "open questions",
+    "options considered",
+    "permission / security considerations",
+    "problem",
+    "progress entry format",
+    "project-specific constraints",
+    "quality gates",
+    "quality requirements",
+    "readiness checklist",
+    "recommended decision",
+    "recommendation",
+    "release relevance",
+    "required documents",
+    "research note",
+    "review categories",
+    "revisit",
+    "risks",
+    "rollout plan",
+    "safety",
+    "safety acceptance",
+    "scope",
+    "scope classification",
+    "scope distinction",
+    "scope rule",
+    "sources",
+    "sources reviewed",
+    "spec",
+    "stop condition",
+    "task",
+    "testing plan",
+    "trade-off matrix",
+    "trade-offs",
+    "ui stories",
+    "user journey",
+    "user-facing behavior",
+    "what",
+    "why",
+    "why now"
+  ].map((heading) => heading.toLowerCase())
+);
+
 const cjkPattern = /[\u3400-\u9fff]/;
 const wordPattern = /[A-Za-z][A-Za-z0-9_:+#.-]*/g;
 
@@ -294,6 +373,14 @@ function shouldIgnoreMarkdownLine(line: string): boolean {
 }
 
 function looksLikeEnglishBody(line: string): boolean {
+  const headingMatch = line.match(/^#{1,6}\s+(.+)$/);
+  if (
+    headingMatch !== null &&
+    blockedEnglishHeadings.has(normalizeHeadingText(headingMatch[1] ?? ""))
+  ) {
+    return true;
+  }
+
   const scrubbed = line
     .replace(/`[^`]*`/g, " ")
     .replace(/https?:\/\/\S+/g, " ")
@@ -325,6 +412,16 @@ function looksLikeEnglishBody(line: string): boolean {
   });
 
   return meaningfulWords.length >= 4;
+}
+
+function normalizeHeadingText(text: string): string {
+  return text
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/[()[\]{}:.,'"]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 function extractComments(content: string): string {

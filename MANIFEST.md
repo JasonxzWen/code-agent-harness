@@ -1,8 +1,8 @@
-# Public Repository Manifest
+# 公共仓库清单
 
 本 manifest 列出计划提交到 public repository 的文件。
 
-## Root
+## 根目录
 
 ```txt
 AGENTS.md
@@ -10,7 +10,7 @@ README.md
 CHANGELOG.md
 ```
 
-## Codex project enhancement
+## Codex 项目增强
 
 ```txt
 .codex/config.toml
@@ -27,7 +27,7 @@ CHANGELOG.md
 .agents/skills/release-readiness/SKILL.md
 ```
 
-## Docs
+## 文档
 
 ```txt
 docs/project-charter.md
