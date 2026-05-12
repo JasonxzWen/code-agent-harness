@@ -1,65 +1,58 @@
 # AGENTS.md
 
-Repository guidance for AI coding agents working on `code-agent-harness`.
+面向在 `code-agent-harness` 仓库工作的 AI coding agents 的项目指引。
 
-Keep this file concise. Detailed process docs live under `docs/engineering/` and task-specific workflows live under `.agents/skills/`.
+保持本文件简洁。详细流程文档在 `docs/engineering/`，任务专用工作流在 `.agents/skills/`。
 
-## Project
+## 语言政策
 
-`code-agent-harness` is a release-driven TypeScript coding agent harness for real repositories.
+始终用中文回复。自 `v0.2.1` 起，仓库文档、规范、release contract、research、spec、checklist、ADR、README、CHANGELOG、AGENTS.md 和 skills 文档默认使用中文正文。代码标识符、命令、路径、包名、API 名称、外部项目名和引用标题保留原文。详细规则见 `docs/engineering/language-policy.md`。
 
-It focuses on:
+## 项目
 
-- agent loop runtime;
-- tool calling and tool validation;
-- repository inspection;
-- permission and safety policy;
-- context management;
-- event traces;
-- evaluation readiness;
-- terminal-first developer experience.
+`code-agent-harness` 是面向真实仓库的 release-driven TypeScript coding agent harness。
 
-## Current release
+它聚焦：
 
-Current target: `v0.1.0 Minimal Coding Agent`.
+- agent loop runtime；
+- tool calling 和 tool validation；
+- repository inspection；
+- permission 和 safety policy；
+- context management；
+- event traces；
+- evaluation readiness；
+- terminal-first 开发者体验。
 
-Locked v0.1 flow:
+## 当前 release
 
-```txt
-User Task
-→ Agent Loop
-→ Tool Calling
-→ Safe Repo Read
-→ Grounded Final Response
-→ JSONL Trace
-```
+当前已交付基线：`v0.2.0 Patch-capable Agent`。
 
-## Non-goals for v0.1
+当前迁移目标：`v0.2.1 Chinese-first Repository Migration`。
 
-Do not implement:
+`v0.2.1` 是文档和流程 release，不改变产品运行时代码。
 
-- file editing;
-- patch application;
-- persistent memory;
-- subagent orchestration inside the product;
-- MCP integration inside the product;
-- sandbox runtime;
-- eval dashboard;
-- IDE extension;
-- background task mode.
+## 非目标
 
-## Required stack
+当前迁移不要实现：
+
+- UI、provider、patch tool、MCP、sandbox、subagents、IDE extension；
+- 产品功能代码变更；
+- 自动翻译流水线；
+- 多语言站点；
+- 自动 tag、publish、commit、push 或 PR。
+
+## 技术栈
 
 - TypeScript
 - Bun / Node-compatible runtime
 - Ink + React for TUI
 - Zod for schemas
 - OpenAI provider first
-- Anthropic provider boundary only in v0.1
-- execa for subprocess execution behind policy
-- simple-git for read-only git operations where useful
+- v0.1 只保留 Anthropic provider boundary
+- 在 policy 后使用 execa 执行 subprocess
+- 需要 read-only git operations 时可使用 simple-git
 
-## Repository layout
+## 仓库布局
 
 ```txt
 apps/cli              Ink TUI and user interaction
@@ -73,61 +66,50 @@ scripts               smoke and developer scripts
 .agents/skills        Codex skills for repeatable workflows
 ```
 
-## Engineering rules
+## 工程规则
 
-- Preserve package boundaries.
-- Use strict TypeScript.
-- Validate external/model-generated input with Zod.
-- Keep provider-specific SDK shapes out of `packages/core`.
-- Keep TUI business logic out of `packages/core`.
-- Keep command execution only inside the approved command tool or scripts.
-- Never rely on prompt-only safety; enforce safety in code.
-- Add tests for success and failure paths.
-- Update docs when public behavior changes.
+- Preserve package boundaries。
+- Use strict TypeScript。
+- 使用 Zod 校验 external/model-generated input。
+- 不要让 provider-specific SDK shapes 进入 `packages/core`。
+- 不要让 TUI business logic 进入 `packages/core`。
+- command execution 只能位于 approved command tool 或 scripts 中。
+- 不要依赖 prompt-only safety；必须在代码中 enforce safety。
+- 为 success 和 failure paths 添加 tests。
+- public behavior 改变时更新 docs。
+- 新增或重写文档正文默认中文，技术标识保留原文。
+- 核心源码注释默认使用中文和 UTF-8，解释 what、why、how，帮助新手理解核心逻辑。
 
-## Development workflow
+## 开发流程
 
-For feature work beyond the initial agent loop scaffold:
+初始 agent loop scaffold 之后的功能工作遵循：
 
 ```txt
-research → spec → alignment brief → implementation → quality gates → self-review → final report
+research -> spec -> alignment brief -> implementation -> quality gates -> self-review -> final report
 ```
 
-For v0.1 blockers, do not start implementation until the relevant
-`docs/specs/v0.1/` spec exists and acceptance criteria are explicit.
+对 v0.1 blockers，不要在相关 `docs/specs/v0.1/` spec 存在且 acceptance criteria 明确前开始实现。
 
-## Release documentation
+## Release 文档
 
-Every release must have user-facing documentation that explains:
+每个 release 都必须有用户可读文档，并说明：
 
-- each feature: what it is, the user need, the primary scenario, comparable
-  product behavior, this project's approach, why that approach fits, how it is
-  implemented, E2E acceptance, benchmark evidence, and limitations;
-- key logic and code definition locations;
-- a Mermaid diagram for the release flow or change boundary;
-- why the current implementation was chosen;
-- how comparable projects such as Claude Code, Codex, opencode, OpenClaw, and
-  Hermes Agent approach the same problem;
-- why this project chooses its current release-scoped approach.
+- 每个 feature 是什么、用户需求、主场景、同类产品行为、本项目方案、为什么适合、如何实现、E2E acceptance、benchmark evidence 和 limitations；
+- 关键逻辑和代码定义位置；
+- 展示 release flow 或 change boundary 的 Mermaid 图；
+- 为什么选择当前实现；
+- Claude Code、Codex、opencode、OpenClaw、Hermes Agent 等同类项目如何处理同类问题；
+- 本项目为什么选择当前 release-scoped approach。
 
-Before release implementation starts, refresh the comparable-project research
-for at least Codex, Claude Code, and opencode, plus release-relevant peers. The
-research must map external behavior to this release's scope and must not expand
-scope by imitation.
+release 实现开始前，至少刷新 Codex、Claude Code、opencode 以及 release-relevant peers 的 comparable-project research。research 必须映射到本 release scope，不能因为模仿外部项目而扩大范围。
 
-User-visible release features must not ship with unit tests alone. Add E2E
-acceptance evidence from a user-level entrypoint to final answer, artifact,
-trace, or worktree evidence. Each release feature must also define benchmark
-questions, metrics, fixtures, commands or artifacts, thresholds, results, peer
-baselines, and caveats.
+用户可见 release feature 不能只靠 unit tests 发布。必须补充从 user-level entrypoint 到 final answer、artifact、trace 或 worktree evidence 的 E2E acceptance evidence。每个 release feature 还必须定义 benchmark questions、metrics、fixtures、commands 或 artifacts、thresholds、results、peer baselines 和 caveats。
 
-From `v0.2.0` onward, new release-facing docs must use Chinese as the body
-language. Code identifiers, commands, package names, and external source titles
-may remain in their original language.
+从 `v0.2.0` 起，新增 release-facing docs 必须使用中文正文。自 `v0.2.1` 起，中文优先规则扩展到 README、CHANGELOG、AGENTS.md、engineering docs、agent docs、templates 和 skills 文档。
 
-## Quality gates
+## 质量门禁
 
-Run before finishing implementation work:
+实现工作结束前运行：
 
 ```bash
 bun run format:check
@@ -139,9 +121,9 @@ bun run smoke
 bun run quality
 ```
 
-Do not claim a command passed unless it was run and passed.
+不要声称未运行的命令通过。
 
-## Final response format for code changes
+## 代码变更最终汇报格式
 
 ```md
 ## Completed
@@ -169,8 +151,4 @@ Do not claim a command passed unless it was run and passed.
 ## Next step
 ```
 
-When pausing for human review, do not use a bare file list as the main handoff.
-Summarize the key change points with what/why/how and file/line references so
-the reviewer can understand the change, then jump directly to the important
-code, test, or documentation locations. Use a Feynman-style explanation:
-plain-language first, concrete implementation path second.
+暂停给人审查时，不要把文件列表当作主要交接。必须围绕可审查的变更点说明 what changed、why、how，并给出精确 `file:line`，让 reviewer 不读完整 diff 也能理解变更和审查重点。

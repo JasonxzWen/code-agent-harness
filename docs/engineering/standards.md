@@ -1,10 +1,10 @@
-# Engineering Standards
+# 工程标准
 
 ## TypeScript
 
-Use strict TypeScript.
+使用 strict TypeScript。
 
-Required compiler posture:
+必需的编译器姿态：
 
 ```json
 {
@@ -17,18 +17,18 @@ Required compiler posture:
 }
 ```
 
-## Package boundaries
+## Package 边界
 
-| Package              | Responsibility                                    | Must not do                      |
-| -------------------- | ------------------------------------------------- | -------------------------------- |
-| `apps/cli`           | TUI and interaction                               | execute tools directly           |
-| `packages/core`      | orchestration, state, config, permission, logging | import provider SDK types or Ink |
-| `packages/tools`     | tools and safety policies                         | call model providers             |
-| `packages/providers` | provider adapters and normalization               | execute tools                    |
+| Package              | 职责                                       | 不得执行                     |
+| -------------------- | ------------------------------------------ | ---------------------------- |
+| `apps/cli`           | TUI 和用户交互                             | 直接执行 tools               |
+| `packages/core`      | 编排、状态、配置、权限、日志               | 引入 provider SDK 类型或 Ink |
+| `packages/tools`     | tools 和安全策略                           | 调用 model providers         |
+| `packages/providers` | provider adapters 和归一化 model interface | 执行 tools                   |
 
-## Naming
+## 命名
 
-| Thing     | Convention            | Example                |
+| 对象      | 约定                  | 示例                   |
 | --------- | --------------------- | ---------------------- |
 | file      | kebab-case            | `agent-loop.ts`        |
 | component | PascalCase            | `PermissionPrompt.tsx` |
@@ -38,9 +38,9 @@ Required compiler posture:
 | event     | dot notation          | `tool.completed`       |
 | tool      | snake_case            | `read_file`            |
 
-## Errors
+## 错误
 
-Runtime errors should map to:
+运行时错误应映射到：
 
 ```ts
 export type AgentErrorKind =
@@ -56,78 +56,79 @@ export type AgentErrorKind =
   | "internal_error";
 ```
 
-## Logging
+## 日志
 
-- No random stdout logging in core packages.
-- Core emits events.
-- CLI renders state.
-- Tool results are structured.
-- Secrets are redacted.
+- core packages 中不得随意写 stdout 日志。
+- core 发出 events。
+- CLI 负责渲染状态。
+- Tool results 必须结构化。
+- Secrets 必须被 redacted。
+
+## 源码注释和编码
+
+- 源码文件必须使用 UTF-8 编码。
+- 核心逻辑需要适当的中文注释，注释说明 what、why、how：这段逻辑做什么、为什么需要这样设计、如何保护边界或连接上下游。
+- 注释应帮助新手理解 agent loop、permission gate、tool registry、policy checks、provider normalization、trace redaction、CLI permission flow 和 smoke/E2E path。
+- 不要逐行解释显而易见的赋值或语法；优先在复杂分支、跨 package boundary、安全策略、重试/abort、预检/执行双阶段等位置写短注释。
+- 代码标识符、命令、路径、event name、tool name、error kind 和 API 名称在注释中也保留原文。
 
 ## Review Handoff Reports
 
-When an agent pauses for human review after code or documentation changes, the
-report must focus on reviewable change points instead of a flat file list.
+agent 在代码或文档变更后暂停给人工 review 时，报告必须围绕可 review 的变更点组织，而不是给一个平铺的文件列表。
 
-Each review handoff must include:
+每次 review handoff 必须包含：
 
-- what changed;
-- why it changed;
-- how the implementation works;
-- the exact file and line number for the primary implementation or evidence;
-- why that location is important to review;
-- any related test or documentation evidence when relevant.
+- what changed；
+- why it changed；
+- how the implementation works；
+- primary implementation 或 evidence 的精确 file 和 line number；
+- 为什么该位置值得 review；
+- 相关 test 或 documentation evidence，若适用。
 
-Use a Feynman-style explanation as the default: explain the change in plain
-language first, then connect it to the exact code path and tests. A reviewer who
-has not held the whole diff in their head should still understand what changed,
-why the design was chosen, and how to verify it.
+默认使用 Feynman-style 解释：先用普通语言说明变更，再连接到具体代码路径和测试。reviewer 不需要把整个 diff 都放在脑中，也应能理解改了什么、为什么这样设计、如何验证。
 
-Prefer short bullets or a table such as:
+优先使用短 bullets 或如下表格：
 
-| What changed             | Why                                          | How                                    | File:line                              | Review focus                                              |
-| ------------------------ | -------------------------------------------- | -------------------------------------- | -------------------------------------- | --------------------------------------------------------- |
-| Added patch policy check | Prevent traversal from being normalized away | Reject `..` path segments before apply | `packages/tools/src/patch-tool.ts:446` | Confirm the policy boundary matches the release contract. |
+| What changed             | Why                               | How                             | File:line                              | Review focus                                 |
+| ------------------------ | --------------------------------- | ------------------------------- | -------------------------------------- | -------------------------------------------- |
+| Added patch policy check | 防止 traversal 被 normalized away | apply 前拒绝 `..` path segments | `packages/tools/src/patch-tool.ts:446` | 确认 policy boundary 匹配 release contract。 |
 
-Do not use a bare "files changed" list as the main review handoff.
+不要把裸的 "files changed" 列表作为主要 review handoff。
 
 ## Runtime Contracts
 
-- Treat model-generated tool input as untrusted external input.
-- Reject unknown tool input fields at runtime.
-- Validate before path policy, command policy, permission, or execution.
-- Enforce safety in code; never rely on prompt-only safety.
-- Permission approval cannot override deterministic deny rules.
-- v0.1 tools must remain read-only.
+- 将 model-generated tool input 视为不可信外部输入。
+- 运行时拒绝 unknown tool input fields。
+- 在 path policy、command policy、permission 或 execution 之前完成 validate。
+- 安全必须在代码中执行，不得只依赖 prompt。
+- Permission approval 不能覆盖 deterministic deny rules。
+- v0.1 tools 必须保持 read-only。
 
 ## Build Contract
 
-- `bun run build` must produce the local CLI bundle at `dist/agent-harness.js`.
-- The build may externalize runtime dependencies, but it must bundle local CLI
-  source and remain runnable with `bun dist/agent-harness.js ...` after
-  `bun install`.
-- Any change to CLI entrypoints, workspace package exports, runtime dependency
-  loading, or TypeScript module resolution must keep `bun run build` passing.
-- `bun run quality` and CI must include `bun run build` so build drift is caught
-  before release.
+- `bun run build` 必须在 `dist/agent-harness.js` 产出本地 CLI bundle。
+- build 可以 externalize runtime dependencies，但必须 bundle 本地 CLI source，并且在 `bun install` 后可用 `bun dist/agent-harness.js ...` 运行。
+- 任何 CLI entrypoints、workspace package exports、runtime dependency loading 或 TypeScript module resolution 的变更，都必须保持 `bun run build` 通过。
+- `bun run quality` 和 CI 必须包含 `bun run build`，以便 release 前发现 build drift。
+
+## Documentation Language
+
+- 仓库协作、agent updates、final report 和新增文档默认使用中文。
+- 详细语言政策见 `docs/engineering/language-policy.md`。
+- 代码标识符、命令、路径、包名、API 名称、event name、tool name、外部项目名和引用标题保留原文。
+- Markdown 表格、Mermaid、命令块、链接和 frontmatter 不得因中文化被破坏。
+- 未运行的 E2E、benchmark 或质量门禁必须标为未运行，不得写成通过。
 
 ## Release Documentation
 
-- Every release note must follow
-  `docs/engineering/release-documentation-standard.md`.
-- Release notes must explain features, key logic, code definition locations,
-  implementation rationale, industry comparison, quality evidence, known
-  limitations, and next steps.
-- Release notes must include at least one Mermaid diagram that shows the release
-  flow, capability boundary, or module change.
-- From `v0.2.0` onward, new release notes, release contracts, checklists,
-  specs, research notes, and ADRs must use Chinese as the body language. Code
-  identifiers, commands, package names, external project names, and source
-  titles may remain in their original language.
+- 每份 release note 必须遵守 `docs/engineering/release-documentation-standard.md`。
+- Release notes 必须解释 features、key logic、code definition locations、implementation rationale、industry comparison、quality evidence、known limitations 和 next steps。
+- Release notes 必须包含至少一个 Mermaid diagram，用于展示 release flow、capability boundary 或 module change。
+- 从 `v0.2.0` 开始，新增 release notes、release contracts、checklists、specs、research notes 和 ADRs 必须使用中文正文。代码标识符、命令、包名、外部项目名和 source titles 可以保留原文。
 
 ## Commits
 
-Use Conventional Commits:
+使用 Conventional Commits：
 
 ```txt
 feat(core): add agent loop

@@ -1,36 +1,36 @@
-# ADR-0008: Public Docs Do Not Encode Private Operating Goals
+# ADR-0008: 公开文档不编码私有运营目标
 
-## Status
+## 状态
 
-Accepted
+已接受
 
-## Context
+## 背景
 
-The project needs explicit architecture decisions that can be reviewed and revisited.
+项目需要可 review、可 revisit 的显式 architecture decisions。
 
-## Decision
+## 决策
 
-Keep public repository docs product-focused and keep private operator goals outside the committed repository.
+公开仓库文档保持 product-focused；private operator goals 留在 committed repository 之外。
 
-## Alternatives considered
+## 已考虑的备选方案
 
-- Do nothing and rely on ad hoc convention.
-- Encode the decision only in prompts.
-- Record the decision in an ADR.
+- 什么都不做，依赖 ad hoc convention。
+- 只在 prompts 中编码该决策。
+- 在 ADR 中记录该决策。
 
 ## Trade-offs
 
-Pros:
+Pros：
 
-- decision is auditable;
-- future contributors can understand why the project is shaped this way;
-- release scope stays stable.
+- decision 可审计；
+- future contributors 能理解项目为什么这样成形；
+- release scope 保持稳定。
 
-Cons:
+Cons：
 
-- creates documentation overhead;
-- stale ADRs must be maintained.
+- 增加 documentation overhead；
+- stale ADRs 必须维护。
 
 ## Revisit
 
-Revisit when the related release scope changes or when implementation evidence contradicts the decision.
+当相关 release scope 改变，或 implementation evidence 与该决策冲突时 revisit。

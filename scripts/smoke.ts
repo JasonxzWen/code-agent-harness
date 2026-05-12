@@ -26,12 +26,17 @@ const state = await runAgentTask({
   logger: createJsonlEventLogger(tracePath)
 });
 
+// What: 第一段 smoke 验证只读 inspection path。Why: 它是最低成本的 E2E
+// 回归信号。How: 使用 fixture repo + mock provider，断言 final answer 和 trace。
 assert.equal(state.status, "completed");
 assert.ok(state.finalAnswer?.includes("package.json"));
 assert.ok(existsSync(tracePath));
 
 const patchRepoRoot = await mkdtemp(path.join(tmpdir(), "agent-harness-smoke-"));
 try {
+  // What: 第二段 smoke 构造临时 git repo 来验证 approved patch path。Why:
+  // apply_patch 需要真实 git working tree 才能覆盖 preflight、apply 和 no-stage 边界。
+  // How: 初始化 repo、提交基线文件，再由 deterministic provider 请求 patch。
   await git(patchRepoRoot, ["init"]);
   await git(patchRepoRoot, ["config", "user.email", "agent@example.com"]);
   await git(patchRepoRoot, ["config", "user.name", "Agent Harness"]);
@@ -55,6 +60,8 @@ try {
     logger: createJsonlEventLogger(patchTracePath),
     permissionGate: {
       check(request) {
+        // What: smoke 的 permission gate 自动批准，但仍检查 preview。Why: E2E 要
+        // 覆盖“先展示 preview 再写入”的契约。How: 断言 toolName 和 diff preview 后返回 allow。
         assert.equal(request.toolName, "apply_patch");
         assert.ok(request.preview?.body?.includes("diff --git"));
         return Promise.resolve("allow");
@@ -79,6 +86,9 @@ function createPatchSmokeProvider(): ProviderClient {
   return {
     name: "patch-smoke",
     generate(request: ProviderGenerateRequest): Promise<ProviderResponse> {
+      // What: deterministic provider 第一轮提出 patch，第二轮给 final answer。Why:
+      // smoke 不依赖真实模型也能覆盖 provider -> tool -> permission -> final 的闭环。
+      // How: step 0 返回 apply_patch tool_call，后续返回包含修改文件的 final。
       if (request.step === 0) {
         return Promise.resolve({
           type: "tool_call",

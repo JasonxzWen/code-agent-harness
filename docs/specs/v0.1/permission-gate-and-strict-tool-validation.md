@@ -1,30 +1,26 @@
-# Spec: Permission Gate and Strict Tool Validation
+# 规格：Permission Gate and Strict Tool Validation
 
 ## Scope classification
 
 `v0.1 blocker`
 
-This spec is documentation and implementation planning only. It does not
-authorize coding until implementation is explicitly requested.
+本 spec 只用于 documentation 和 implementation planning。除非明确请求 implementation，否则它不授权 coding。
 
 ## Problem
 
-The v0.1 contract requires validated tool calls, read-only command safety, and a
-permission prompt before restricted command execution. The implementation must
-make those guarantees enforceable in code, not dependent on model behavior.
+v0.1 contract 要求 validated tool calls、read-only command safety，以及 restricted command execution 前的 permission prompt。implementation 必须在代码中强制这些保证，而不能依赖 model behavior。
 
 ## User-facing behavior
 
-- Read-only tools run without prompting.
-- A restricted command request pauses the run and asks the user to approve or
-  deny it.
-- Denied commands produce a structured tool result and a trace event.
-- Invalid tool input produces a structured validation error.
-- Final answers must not claim that denied or invalid tools executed.
+- Read-only tools 无需 prompt 即可运行。
+- Restricted command request 会暂停 run，并询问用户 approve 或 deny。
+- Denied commands 会产生 structured tool result 和 trace event。
+- Invalid tool input 会产生 structured validation error。
+- Final answers 不得声称 denied 或 invalid tools 已执行。
 
 ## Internal design
 
-The agent loop must evaluate every provider tool call in this order:
+Agent loop 必须按以下顺序评估每个 provider tool call：
 
 ```txt
 provider tool call
@@ -37,16 +33,13 @@ provider tool call
 → write trace event
 ```
 
-The permission gate belongs in `packages/core` as a provider-agnostic contract.
-The CLI may supply an implementation that renders prompts, but `packages/core`
-must not import Ink.
+Permission gate 属于 `packages/core`，作为 provider-agnostic contract。CLI 可以提供 render prompts 的 implementation，但 `packages/core` 不得 import Ink。
 
-`packages/tools` owns tool schemas, path policy, command policy, and execution.
-It must not know about providers or TUI rendering.
+`packages/tools` 拥有 tool schemas、path policy、command policy 和 execution。它不得知道 providers 或 TUI rendering。
 
 ## APIs / contracts
 
-Proposed core contract:
+Proposed core contract：
 
 ```ts
 export type PermissionDecision = "allow" | "ask" | "deny";
@@ -63,13 +56,13 @@ export interface PermissionGate {
 }
 ```
 
-Tool definitions must declare their default permission:
+Tool definitions 必须声明 default permission：
 
 ```ts
 defaultPermission: PermissionDecision;
 ```
 
-Runtime validation requirement:
+Runtime validation requirement：
 
 ```txt
 Zod schema rejects unknown keys.
@@ -79,15 +72,15 @@ Validation failure returns tool_validation_error.
 
 ## Data/state model
 
-Permission-related run state must include:
+Permission-related run state 必须包含：
 
-- pending permission request;
-- approved or denied decision;
-- tool call id;
-- structured result for denied calls;
-- trace events for request, decision, and completion.
+- pending permission request；
+- approved 或 denied decision；
+- tool call id；
+- denied calls 的 structured result；
+- request、decision 和 completion 的 trace events。
 
-No permission state may persist across process runs in v0.1.
+v0.1 中任何 permission state 都不得跨 process runs 持久化。
 
 ## Error handling
 
@@ -102,65 +95,65 @@ No permission state may persist across process runs in v0.1.
 | Command policy violation | `command_policy_violation` |
 | Tool execution failure   | `tool_execution_error`     |
 
-## Permission/security considerations
+## Permission / security considerations
 
-- Permission is evaluated after schema validation and before execution.
-- Permission approval cannot override deterministic safety policy.
-- Shell strings remain forbidden.
-- Destructive commands remain forbidden.
-- File editing, patch application, and write commands remain out of scope.
-- A denied tool call must be visible in trace output.
+- Permission 在 schema validation 之后、execution 之前评估。
+- Permission approval 不能覆盖 deterministic safety policy。
+- Shell strings 仍然 forbidden。
+- Destructive commands 仍然 forbidden。
+- File editing、patch application 和 write commands 仍 out of scope。
+- Denied tool call 必须在 trace output 中可见。
 
 ## Testing plan
 
-Required tests before implementation can be considered complete:
+Implementation 被视为完成前的 required tests：
 
-- strict schema rejects unknown input fields;
-- unknown tool returns `tool_validation_error`;
-- invalid args return `tool_validation_error`;
-- read-only tools pass with `allow`;
-- `run_command` creates an `ask` permission request;
-- approved read-only command executes;
-- denied command does not execute;
-- destructive command is denied even if permission would allow;
-- shell-token command is denied;
-- denied command result is appended to run context;
-- permission events are written to JSONL trace.
+- strict schema 拒绝 unknown input fields；
+- unknown tool 返回 `tool_validation_error`；
+- invalid args 返回 `tool_validation_error`；
+- read-only tools 以 `allow` 通过；
+- `run_command` creates an `ask` permission request；
+- approved read-only command 会执行；
+- denied command 不执行；
+- destructive command 即使 permission would allow 也会 denied；
+- shell-token command is denied；
+- denied command result 会 append 到 run context；
+- permission events 会写入 JSONL trace。
 
 ## Documentation impact
 
-Update these documents when implementation is complete:
+Implementation 完成后更新这些文档：
 
 - `docs/agent/permission-system.md`
 - `docs/agent/tool-protocol.md`
 - `docs/architecture/v0.1-minimal-coding-agent.md`
 - `docs/engineering/testing-strategy.md`
-- `docs/releases/v0.1.0-contract.md`, only if the public contract changes
+- `docs/releases/v0.1.0-contract.md`，仅当 public contract 改变时
 
 ## Acceptance criteria
 
-This spec is accepted when:
+满足以下条件时，本 spec 被 accepted：
 
-- the above test plan is represented in tests;
-- `bun run quality` passes;
-- no v0.2+ feature is introduced;
-- release checklist marks F-06, F-11, S-05, S-06, and S-08 as satisfied.
+- 上述 test plan 已体现在 tests 中；
+- `bun run quality` passes；
+- 没有引入 v0.2+ feature；
+- release checklist 将 F-06、F-11、S-05、S-06 和 S-08 标记为 satisfied。
 
 ## Non-goals
 
-- command write support;
-- patch application;
-- persistent permission memory;
-- background approval;
-- MCP permission integration;
-- sandbox runtime;
-- provider-specific permission behavior.
+- command write support；
+- patch application；
+- persistent permission memory；
+- background approval；
+- MCP permission integration；
+- sandbox runtime；
+- core 中的 provider-specific permission behavior。
 
 ## Rollout plan
 
-1. Implement strict schemas and registry validation tests.
-2. Add provider-agnostic `PermissionGate` contract in core.
-3. Add CLI permission prompt adapter without moving execution into CLI.
-4. Add trace events for permission request and decision.
-5. Run full quality gates.
-6. Update release readiness checklist with evidence.
+1. 实现 strict schemas 和 registry validation tests。
+2. 在 core 中添加 provider-agnostic `PermissionGate` contract。
+3. 添加 CLI permission prompt adapter，且不把 execution 移入 CLI。
+4. 添加 permission request 和 decision trace events。
+5. 运行 full quality gates。
+6. 用 evidence 更新 release readiness checklist。

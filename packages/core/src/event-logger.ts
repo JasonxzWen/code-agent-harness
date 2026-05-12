@@ -12,6 +12,8 @@ const SECRET_VALUE_PATTERNS = [
 export function createJsonlEventLogger(tracePath: string): EventLogger {
   return {
     async write(event) {
+      // What: trace 以 UTF-8 JSONL 追加写入。Why: JSONL 易于调试、diff 和后续 eval。
+      // How: 写入前创建目录，并统一经过 redactTraceEvent。
       await mkdir(dirname(tracePath), { recursive: true });
       await appendFile(
         tracePath,
@@ -30,6 +32,9 @@ export function redactTraceEvent(event: TraceEvent): TraceEvent {
 }
 
 export function redactJson(value: JsonValue): JsonValue {
+  // What: 递归脱敏 trace payload。Why: tool input/output 可能包含 API key、token
+  // 或 private key。How: key 命中 secret pattern 时整值替换；字符串中命中的
+  // secret-like value 也替换为 [REDACTED]。
   if (typeof value === "string") {
     return SECRET_VALUE_PATTERNS.reduce(
       (current, pattern) => current.replace(pattern, "[REDACTED]"),

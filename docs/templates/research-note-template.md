@@ -1,23 +1,23 @@
-# Research: <Topic>
+# 调研：<主题>
 
-## Problem
+## 问题
 
-## Release relevance
+## 与 release 的关系
 
-## Sources reviewed
+## 已检查来源
 
-## Industry scan
+## 行业扫描
 
-## Industry practice
+## 行业实践
 
-## Alternatives considered
+## 备选方案
 
-## Trade-off matrix
+## 取舍矩阵
 
-## Project-specific constraints
+## 本项目约束
 
-## Recommendation
+## 建议
 
-## Acceptance criteria impacted
+## 影响的验收标准
 
-## Open questions
+## 未决问题

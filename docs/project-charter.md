@@ -1,48 +1,48 @@
-# Project Charter
+# 项目章程
 
 ## Mission
 
-Build a release-driven coding agent harness for real repositories, with transparent runtime contracts, safe tool execution, observable agent behavior, and a terminal-first developer experience.
+构建一个 release-driven coding agent harness，面向真实仓库，具备透明的运行时契约、安全的 tool execution、可观察的 agent behavior，以及 terminal-first developer experience。
 
-## Product principles
+## 产品原则
 
-- Runnable over impressive.
-- Release discipline over broad ambition.
-- Small contracts over large abstractions.
-- Deterministic safety over prompt-only safety.
-- Traceable behavior over black-box automation.
-- Evaluation readiness from the first release.
-- Terminal-first developer workflow.
+- 可运行优先于看起来宏大。
+- Release 纪律优先于宽泛野心。
+- 小契约优先于大抽象。
+- Deterministic safety 优先于 prompt-only safety。
+- 可追踪行为优先于黑箱自动化。
+- 从第一个 release 开始准备 evaluation readiness。
+- Terminal-first 开发者 workflow。
 
-## What this project demonstrates
+## 本项目展示什么
 
-- agent loop design;
-- tool orchestration;
-- provider abstraction;
-- context management;
-- permission systems;
-- event logging;
-- quality gates;
-- release documentation;
-- extensible architecture.
+- agent loop design；
+- tool orchestration；
+- provider abstraction；
+- context management；
+- permission systems；
+- event logging；
+- quality gates；
+- release documentation；
+- extensible architecture。
 
 ## Non-goals
 
-- a chatbot UI;
-- a general-purpose assistant;
-- a web demo;
-- uncontrolled shell automation;
-- hidden persistent memory;
-- broad integrations before core runtime exists.
+- chatbot UI；
+- general-purpose assistant；
+- web demo；
+- uncontrolled shell automation；
+- hidden persistent memory；
+- core runtime 存在前的 broad integrations。
 
 ## Public surfaces
 
-The following are treated as public contracts:
+以下内容视为 public contracts：
 
-- CLI behavior;
-- config schema;
-- tool protocol;
-- provider contract;
-- event schema;
-- release notes;
-- docs and ADRs.
+- CLI behavior；
+- config schema；
+- tool protocol；
+- provider contract；
+- event schema；
+- release notes；
+- docs 和 ADRs。

@@ -1,6 +1,6 @@
 # Agent Loop
 
-## Flow
+## 流程
 
 ```txt
 start run
@@ -20,23 +20,23 @@ start run
      stop
 ```
 
-## Limits
+## 限制
 
-| Limit                        | Default |
-| ---------------------------- | ------: |
-| max steps                    |       8 |
-| max tool calls per step      |       4 |
-| repeated validation failures |       2 |
-| provider timeout             |     60s |
-| command timeout              |     20s |
+| 限制项                       | 默认值 |
+| ---------------------------- | -----: |
+| max steps                    |      8 |
+| 每步最多 tool calls          |      4 |
+| repeated validation failures |      2 |
+| provider timeout             |    60s |
+| command timeout              |    20s |
 
-## Termination
+## 终止条件
 
-| Condition          | Result                                       |
-| ------------------ | -------------------------------------------- |
-| final answer       | done                                         |
-| max steps exceeded | error                                        |
-| unknown tool       | error                                        |
-| invalid args       | return validation result, retry within limit |
-| permission denied  | return denied result                         |
-| user abort         | aborted                                      |
+| 条件               | 结果                                  |
+| ------------------ | ------------------------------------- |
+| final answer       | done                                  |
+| max steps exceeded | error                                 |
+| unknown tool       | error                                 |
+| invalid args       | 返回 validation result 并在限制内重试 |
+| permission denied  | 返回 denied result                    |
+| user abort         | aborted                               |

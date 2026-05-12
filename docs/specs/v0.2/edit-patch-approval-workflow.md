@@ -1,4 +1,4 @@
-# Spec: Edit/Patch Approval Workflow
+# 规格：Edit/Patch Approval Workflow
 
 ## 范围分类
 
@@ -177,40 +177,40 @@ Trace event data 必须 bounded：
 
 Core tests：
 
-- permission request receives preview metadata；
-- denied patch does not execute；
-- abort during patch approval does not write；
-- patch events or equivalent tool/permission events are logged；
-- final state includes applied or denied tool result。
+- permission request 接收 preview metadata；
+- denied patch 不执行；
+- patch approval 期间 abort 不写入；
+- patch events 或等价 tool/permission events 被记录；
+- final state 包含 applied 或 denied tool result。
 
 Tools tests：
 
-- accepts a small valid text patch；
-- rejects invalid patch syntax；
-- rejects extra input fields；
-- rejects path traversal；
-- rejects symlink escape；
-- rejects secret-looking path；
-- rejects binary diff；
-- rejects mode/symlink change；
-- rejects patch over byte limit；
-- rejects too many files；
-- rejects dirty touched files；
-- rejects non-applicable patch；
-- applies approved patch and reports files/additions/deletions；
-- does not stage or commit。
+- 接受 small valid text patch；
+- 拒绝 invalid patch syntax；
+- 拒绝 extra input fields；
+- 拒绝 path traversal；
+- 拒绝 symlink escape；
+- 拒绝 secret-looking path；
+- 拒绝 binary diff；
+- 拒绝 mode/symlink change；
+- 拒绝 patch over byte limit；
+- 拒绝 too many files；
+- 拒绝 dirty touched files；
+- 拒绝 non-applicable patch；
+- approved patch 被应用，并报告 files/additions/deletions；
+- 不 stage 或 commit。
 
 CLI tests：
 
-- renders patch preview summary；
-- approve key applies；
-- deny key does not apply；
-- abort key during approval does not apply；
-- long preview is truncated with visible marker。
+- render patch preview summary；
+- approve key 会 apply；
+- deny key 不 apply；
+- approval 期间 abort key 不 apply；
+- long preview 被 truncation，并带 visible marker。
 
 Smoke：
 
-- fixture task reads repo, proposes one small patch, user approval path can be exercised deterministically with mock provider/test adapter。
+- fixture task 读取 repo，提出一个 small patch，并可通过 mock provider/test adapter deterministic exercise user approval path。
 
 ## 文档影响
 
@@ -251,7 +251,7 @@ Smoke：
 - conflict resolution UI；
 - binary patch；
 - rename/mode/symlink patch；
-- model-driven arbitrary shell writes；
+- 模型驱动的 arbitrary shell writes；
 - MCP tool bridge。
 
 ## 推进计划

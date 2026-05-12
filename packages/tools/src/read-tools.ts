@@ -46,6 +46,8 @@ export const listFilesTool: ToolDefinition<z.infer<typeof ListFilesInputSchema>>
     maxResults: integerSchema
   }),
   async execute(input, context) {
+    // What: list_files 只返回安全、稳定、有上限的文件列表。Why: agent 需要 repo map
+    // 的最小替代品，但不能预加载全仓。How: 复用 listSafeFiles 的 path/secret/limit policy。
     const result = await listSafeFiles(context.repoRoot, input.path, input.maxResults);
     return {
       path: input.path,
@@ -69,6 +71,9 @@ export const readFileTool: ToolDefinition<z.infer<typeof ReadFileInputSchema>> =
     ["path"]
   ),
   async execute(input, context) {
+    // What: read_file 读取 repo 内安全文本文件并显式截断。Why: tool output 会进入
+    // model context 和 trace，必须有大小边界。How: resolveSafePath + binary denial +
+    // UTF-8 byte cap。
     const safePath = await resolveSafePath(context.repoRoot, input.path);
     const realRoot = await realpath(context.repoRoot);
     const buffer = await readFile(safePath);
@@ -103,6 +108,9 @@ export const searchRepoTool: ToolDefinition<z.infer<typeof SearchRepoInputSchema
     ["query"]
   ),
   async execute(input, context) {
+    // What: search_repo 在安全文件集合中做简单文本搜索。Why: v0.1 不引入 embeddings
+    // 或 repo map，先用 bounded snippets 满足 grounded answer。How: 先列安全文件，
+    // 再逐文件读取文本并限制 matches 数量。
     const listed = await listSafeFiles(context.repoRoot, input.path, 1000);
     const query = input.query.toLowerCase();
     const matches: Array<{
@@ -159,6 +167,9 @@ export const gitStatusTool: ToolDefinition<z.infer<typeof GitStatusInputSchema>>
   inputSchema: GitStatusInputSchema,
   inputJsonSchema: objectJsonSchema({}),
   async execute(_input, context) {
+    // What: git_status 暴露只读工作区状态。Why: agent 和 reviewer 需要知道当前
+    // branch/dirty files，但不能通过该工具写入。How: simple-git status 只读取并
+    // 返回结构化文件状态。
     const status = await simpleGit(context.repoRoot).status();
     return {
       current: status.current ?? null,

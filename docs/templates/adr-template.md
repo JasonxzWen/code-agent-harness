@@ -1,17 +1,17 @@
-# ADR-000X: <Decision>
+# ADR-000X: <决策>
 
-## Status
+## 状态
 
 Accepted / Proposed / Superseded
 
-## Context
+## 背景
 
-## Decision
+## 决策
 
-## Alternatives considered
+## 备选方案
 
-## Trade-offs
+## 取舍
 
-## Consequences
+## 影响
 
-## Revisit
+## 复审条件

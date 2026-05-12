@@ -1,31 +1,28 @@
-# Spec: TUI Permission and Run Interaction
+# 规格：TUI Permission and Run Interaction
 
 ## Scope classification
 
 `v0.1 blocker`
 
-This spec defines CLI interaction contracts only. It does not authorize
-implementation until explicitly requested.
+本 spec 只定义 CLI interaction contracts。除非明确请求 implementation，否则它不授权 implementation。
 
 ## Problem
 
-The CLI is the user-facing surface for v0.1. It must start reliably, accept a
-task, render run progress, handle permission requests, show the final answer,
-and allow abort without moving business logic into the TUI.
+CLI 是 v0.1 的 user-facing surface。它必须可靠启动、接受 task、render run progress、处理 permission requests、显示 final answer，并允许 abort，同时不能把 business logic 移入 TUI。
 
 ## User-facing behavior
 
-- User can start `agent-harness`.
-- User can submit a task.
-- Run progress is visible as events or status lines.
-- Restricted command requests show command details and require approve/deny.
-- Denied permission is visible as a run event and does not execute the command.
-- User can abort a running task.
-- Final answer is rendered with inspected paths.
+- User 可以启动 `agent-harness`。
+- User 可以提交 task。
+- Run progress 以 events 或 status lines 可见。
+- Restricted command requests 显示 command details，并要求 approve/deny。
+- Denied permission 作为 run event 可见，且不 execute command。
+- User 可以 abort running task。
+- Final answer 会 render inspected paths。
 
 ## Internal design
 
-The CLI observes and supplies interaction, but it does not execute tools.
+CLI 观察并提供交互，但不 execute tools。
 
 ```txt
 CLI task input
@@ -40,7 +37,7 @@ CLI task input
 
 ## APIs / contracts
 
-The CLI may provide:
+CLI 可以提供：
 
 ```ts
 interface CliPermissionAdapter extends PermissionGate {
@@ -48,85 +45,84 @@ interface CliPermissionAdapter extends PermissionGate {
 }
 ```
 
-The CLI must consume provider-neutral run events rather than provider SDK
-objects.
+CLI 必须 consume provider-neutral run events，而不是 provider SDK objects。
 
 ## Data/state model
 
-CLI-rendered state includes:
+CLI-rendered state 包括：
 
-- draft task;
-- submitted task;
-- run id;
-- recent events;
-- pending permission request;
-- final answer;
-- error;
-- abort status.
+- draft task；
+- submitted task；
+- run id；
+- recent events；
+- pending permission request；
+- final answer；
+- error；
+- abort status。
 
-The CLI must not own tool output beyond display state.
+CLI 不得拥有 display state 之外的 tool output。
 
 ## Error handling
 
-| Case                    | Required behavior                                    |
-| ----------------------- | ---------------------------------------------------- |
-| Provider failure        | Render structured failure                            |
-| Tool validation failure | Render event and allow loop policy to decide         |
-| Permission denied       | Render denial and continue/fail per core state       |
-| User abort              | Mark run aborted and stop further provider/tool work |
-| Trace write failure     | Render failure without hiding root cause             |
+| Case                    | Required behavior                               |
+| ----------------------- | ----------------------------------------------- |
+| Provider failure        | Render structured failure 结果                  |
+| Tool validation failure | Render event，并让 loop policy 决定后续处理     |
+| Permission denied       | Render denial，并按 core state continue/fail    |
+| User abort              | Mark run aborted，并停止后续 provider/tool work |
+| Trace write failure     | Render failure，不隐藏 root cause               |
 
-## Permission/security considerations
+## Permission / security considerations
 
-- Permission prompt must display the requested tool and input summary.
-- Approval must not override deterministic command policy.
-- CLI must not expose secret values in the prompt or trace.
-- Denied permission must not execute tools.
+- Permission prompt 必须 display requested tool 和 input summary。
+- Approval 不能覆盖 deterministic command policy。
+- CLI 不得在 prompt 或 trace 中 expose secret values。
+- Denied permission 不得 execute tools。
 
 ## Testing plan
 
-Required tests:
+Required tests：
 
-- CLI renders initial task input;
-- submitted task reaches run state;
-- pending permission request can be rendered;
-- approve decision returns `allow`;
-- deny decision returns `deny`;
-- denied command is not executed;
-- abort changes run state and stops further steps;
-- final answer renders inspected paths.
+- CLI renders initial task input；
+- submitted task 到达 run state；
+- pending permission request 可被 rendered；
+- approve decision 返回 `allow`；
+- deny decision returns `deny`；
+- denied command is not executed；
+- abort 改变 run state 并 stops further steps；
+- final answer 渲染 inspected paths。
 
 ## Documentation impact
 
-Update these documents when implementation is complete:
+Implementation 完成后更新这些文档：
 
 - `docs/examples/v0.1-demo-script.md`
 - `docs/architecture/v0.1-minimal-coding-agent.md`
 - `docs/agent/permission-system.md`
-- `README.md`, if CLI usage changes
+- `README.md`，如果 CLI usage 改变
 
 ## Acceptance criteria
 
-This spec is accepted when:
+满足以下条件时，本 spec 被 accepted：
 
-- F-01, F-02, F-11, F-13, and F-14 have test or smoke evidence;
-- CLI still does not execute tools directly;
-- core still does not import Ink;
-- `bun run quality` passes.
+- F-01、F-02、F-11、F-13 和 F-14 有 test 或 smoke evidence；
+- CLI 仍不直接 execute tools；
+- core 仍不 import Ink；
+- `bun run quality` passes。
 
 ## Non-goals
 
-- background task mode;
-- IDE extension;
-- rich dashboard UI;
-- command history persistence;
-- multi-agent UI;
-- patch approval UI.
+- background task mode；
+- IDE extension；
+- rich dashboard UI；
+- command history persistence；
+- multi-agent UI；
+- patch approval UI。
 
 ## Rollout plan
 
-1. Define core permission request events.
-2. Add CLI permission adapter.
-3. Add focused render tests for input, permission, final, and abort states.
-4. Update demo script and README if usage changes.
-5. Run quality gates and record release evidence.
+1. 定义 core permission request events。
+2. Add CLI permission adapter。
+3. 添加 input、permission、final 和 abort states 的 focused render tests。
+4. 如果 usage 改变，更新 demo script 和 README。
+5. 运行 quality gates 并记录 release evidence。

@@ -1,24 +1,24 @@
 # Ralph Codex Agent Instructions
 
-You are an autonomous Codex coding agent running inside a Ralph loop.
+你是在 Ralph loop 中运行的 autonomous Codex coding agent。
 
 ## Task
 
-1. Read `scripts/ralph/prd.json`.
-2. Read `scripts/ralph/progress.txt`, especially the `Codebase Patterns` section.
-3. Check that the repository is on the PRD `branchName`. If it is not, create or check out that branch from `main`.
-4. Check `git status --short` before editing. Treat pre-existing uncommitted changes as baseline context and do not stage or commit them.
-5. Pick the highest-priority user story where `passes` is `false`.
-6. Implement that single story only.
-7. Run the repository quality checks appropriate for the change: typecheck, lint, test, build, or browser verification.
-8. Update nearby `AGENTS.md` files only when you discover reusable codebase knowledge.
-9. If checks pass, the worktree was clean before the story, and `git commit` is permitted in the environment, commit all story changes with message `feat: [Story ID] - [Story Title]`.
-10. Update `scripts/ralph/prd.json` and set that story's `passes` to `true`.
-11. Append a progress entry to `scripts/ralph/progress.txt`.
+1. 读取 `scripts/ralph/prd.json`。
+2. 读取 `scripts/ralph/progress.txt`，尤其是 `Codebase Patterns` section。
+3. 检查 repository 是否在 PRD 的 `branchName`。如果不是，则从 `main` 创建或 checkout 该 branch。
+4. 编辑前检查 `git status --short`。将 pre-existing uncommitted changes 视为 baseline context，不要 stage 或 commit 它们。
+5. 选择优先级最高且 `passes` 为 `false` 的 user story。
+6. 只实现这一个 story。
+7. 运行与本次变更匹配的 repository quality checks：typecheck、lint、test、build 或 browser verification。
+8. 只有在发现 reusable codebase knowledge 时才更新附近的 `AGENTS.md` files。
+9. 如果 checks 通过、story 开始前 worktree 是 clean，并且当前环境允许 `git commit`，则使用 message `feat: [Story ID] - [Story Title]` commit 所有 story changes。
+10. 更新 `scripts/ralph/prd.json`，将该 story 的 `passes` 设置为 `true`。
+11. 向 `scripts/ralph/progress.txt` 追加 progress entry。
 
 ## Progress Entry Format
 
-Append to `scripts/ralph/progress.txt`; do not replace the file.
+追加到 `scripts/ralph/progress.txt`；不要替换该文件。
 
 ```text
 ## [Date/Time] - [Story ID]
@@ -34,34 +34,34 @@ Append to `scripts/ralph/progress.txt`; do not replace the file.
 
 ## Codebase Patterns
 
-If you discover a reusable pattern, add it to the `## Codebase Patterns` section near the top of `progress.txt`. Add only durable, general knowledge. Do not add story-specific details.
+如果发现 reusable pattern，将它添加到 `progress.txt` 顶部附近的 `## Codebase Patterns` section。只添加 durable、general knowledge。不要添加 story-specific details。
 
-Examples:
+示例：
 
-- Use the existing repository helper for database access.
-- Migrations must include both upgrade and downgrade paths.
-- UI tests require the dev server to be running on a specific port.
+- 使用现有 repository helper 访问 database。
+- Migrations 必须包含 upgrade 和 downgrade paths。
+- UI tests 要求 dev server 运行在指定 port。
 
 ## Quality Requirements
 
-- Do not commit broken code.
-- Do not bypass local git policy. If `git commit` is blocked or the worktree had pre-existing changes, leave the verified story changes uncommitted, record the reason in `progress.txt`, and continue only if the acceptance criteria are otherwise satisfied.
-- Keep each iteration focused on one story.
-- Run the checks named in the story acceptance criteria.
-- If a required check cannot be run, document the reason in `progress.txt` and do not mark the story passing unless the remaining evidence is sufficient.
+- 不要 commit broken code。
+- 不要绕过 local git policy。如果 `git commit` 被阻止，或 story 开始前 worktree 已有 pre-existing changes，则让已验证的 story changes 保持 uncommitted，在 `progress.txt` 中记录原因；只有 acceptance criteria 仍有足够证据时才继续。
+- 每次 iteration 聚焦一个 story。
+- 运行 story acceptance criteria 中要求的 checks。
+- 如果 required check 无法运行，在 `progress.txt` 中记录原因；除非剩余 evidence 足够，否则不要将 story 标记为 passing。
 
 ## UI Stories
 
-For stories that change UI, verify in a browser when the environment supports it. Use Codex browser capabilities, Playwright, or the repository's existing E2E tooling.
+对于会改变 UI 的 stories，在环境支持时使用 browser 验证。可以使用 Codex browser capabilities、Playwright 或 repository existing E2E tooling。
 
 ## Stop Condition
 
-After completing a story, check whether all stories have `passes: true`.
+完成 story 后，检查所有 stories 是否都为 `passes: true`。
 
-If all stories are complete, output exactly:
+如果所有 stories 都完成，精确输出：
 
 ```xml
 <promise>COMPLETE</promise>
 ```
 
-If stories remain, end normally. The outer Ralph loop will start the next fresh Codex execution.
+如果仍有 stories，正常结束。外层 Ralph loop 会启动下一次 fresh Codex execution。

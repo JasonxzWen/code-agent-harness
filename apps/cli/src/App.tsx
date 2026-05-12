@@ -47,6 +47,9 @@ export function App({
   const permissionGate = useMemo<PermissionGate>(
     () => ({
       check(request) {
+        // What: CLI 把 core 的 PermissionRequest 转成用户可见 prompt。Why:
+        // core 不能 import Ink，但 permission gate 必须能暂停 run。How: 保存
+        // pendingPermission，并把 resolver 暂存在 ref，等待键盘输入 allow/deny。
         setPendingPermission(request);
         return new Promise((resolve) => {
           permissionResolver.current = (decision) => {
@@ -61,6 +64,9 @@ export function App({
   );
 
   useInput((input, key) => {
+    // What: 全局 abort 快捷键优先于普通输入。Why: 用户中止后不能继续 provider/tool
+    // work；如果正卡在 permission prompt，也必须释放 pending promise。How: abort
+    // signal + permission deny + 清空 pending state 同时执行。
     if (
       task !== undefined &&
       finalAnswer === undefined &&
@@ -77,6 +83,8 @@ export function App({
     }
 
     if (pendingPermission !== undefined) {
+      // What: permission prompt 只接受明确 approve/deny 键。Why: 写入能力必须显式
+      // 批准，默认路径是拒绝。How: y/a -> allow，n/d/Esc -> deny。
       if (input.toLowerCase() === "y" || input.toLowerCase() === "a") {
         permissionResolver.current?.("allow");
         return;
@@ -115,6 +123,9 @@ export function App({
       return;
     }
 
+    // What: task 一旦提交就启动一次 runAgentTask。Why: CLI 只负责交互和渲染，
+    // 业务编排留在 core。How: 组装 provider/tools/logger/permissionGate，并把
+    // core events 截断保留最近 8 条用于 TUI 展示。
     const provider = live ? createOpenAIProviderFromEnv() : createMockProvider();
     const tracePath = path.join(
       repoRoot,

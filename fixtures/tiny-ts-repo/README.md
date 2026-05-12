@@ -1,3 +1,3 @@
 # Tiny TS Repo
 
-Small deterministic TypeScript fixture used by `code-agent-harness` smoke tests.
+供 `code-agent-harness` smoke tests 使用的小型 deterministic TypeScript fixture。

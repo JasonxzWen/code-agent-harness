@@ -11,6 +11,7 @@
 - 每个 `docs/releases/vX.Y.Z.md` 必须遵守本标准。
 - 如果 release 改变公开行为、运行时契约、工具协议、安全策略或用户工作流，必须同步更新相关 contract、spec、research、ADR 或 checklist。
 - 从 `v0.2.0` 开始，新增的 release note、release contract、release checklist、spec、research note 和 ADR 必须以中文作为正文语言。代码标识符、命令、包名、源项目名和英文引用标题可以保留原文。
+- 从 `v0.2.1` 开始，中文优先规则扩展到 README、CHANGELOG、AGENTS.md、engineering docs、agent docs、templates 和 skills 文档。详细规则见 `docs/engineering/language-policy.md`。
 
 ## 必需内容
 

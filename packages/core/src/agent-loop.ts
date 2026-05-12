@@ -40,6 +40,9 @@ const SYSTEM_PROMPT = [
 ].join(" ");
 
 export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunState> {
+  // What: 每次用户任务创建一个独立 run state。Why: runId、messages、toolResults
+  // 是 trace、permission 和最终回答的共同锚点。How: core 只保存 provider-neutral
+  // 数据，避免把 CLI 或 provider SDK 形状带入 agent loop。
   const maxSteps = input.maxSteps ?? 8;
   const runId = createRunId();
   const signal = input.signal;
@@ -70,6 +73,9 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
   try {
     throwIfRunAborted(signal);
 
+    // What: agent loop 在有限步数内交替调用 provider 和 tools。Why: coding agent
+    // 必须先 inspect repo，再基于 tool results 产出 grounded final answer。How:
+    // provider 只能返回 final 或 tool_call，所有 tool_call 都经过 registry/permission。
     for (let step = 0; step < maxSteps; step += 1) {
       throwIfRunAborted(signal);
 
@@ -115,6 +121,9 @@ export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunSt
         return state;
       }
 
+      // What: provider 请求的每个 tool call 独立处理。Why: 单个失败不能绕过
+      // validation、policy 或 permission，也不应阻断同一轮其他合法调用。How:
+      // prepare 先生成可执行计划或结构化错误，execute 只在 permission allow 后发生。
       for (const call of response.calls) {
         throwIfRunAborted(signal);
 
@@ -195,6 +204,9 @@ async function resolvePermission(
   prepared: PreparedToolCall,
   signal: AbortSignal | undefined
 ): Promise<PermissionDecision> {
+  // What: 把 tool 默认权限转成实际执行决策。Why: 模型输出不可信，`ask`
+  // 必须暂停给用户或测试 adapter 决定。How: allow 直接通过，deny 直接拒绝，
+  // ask 会记录 permission.requested，并把非 allow 的结果都收敛为 deny。
   if (prepared.defaultPermission === "allow") {
     return "allow";
   }
@@ -232,6 +244,8 @@ async function resolvePermission(
     requestedData.preview = previewForTrace(request.preview);
   }
 
+  // What: trace 中不写入完整 patch input。Why: 大 diff 或敏感内容不应进入
+  // JSONL trace。How: 有 preview 时只记录 omitted marker 和 bounded preview metadata。
   await emit(input, runId, "permission.requested", requestedData);
 
   const rawDecision =
@@ -301,6 +315,9 @@ function createPermissionDeniedResult(
 }
 
 function appendToolResult(state: AgentRunState, result: ToolExecutionResult): void {
+  // What: tool result 同时进入状态和下一轮 provider context。Why: provider 需要
+  // 观察执行结果才能继续规划或给 final answer。How: 使用 provider-neutral
+  // tool message，OpenAI adapter 再负责映射为其当前支持的消息形状。
   state.toolResults.push(result);
   state.messages.push({
     role: "tool",
@@ -328,6 +345,8 @@ async function emitToolCompleted(
 }
 
 function previewForTrace(preview: ToolPreview): JsonObject {
+  // What: 将用户看到的 preview 缩减为 trace-safe metadata。Why: trace 要可调试，
+  // 但不能保存完整大 diff。How: 记录 title、summary、truncated 和 bodyBytes。
   const tracePreview: JsonObject = {
     title: preview.title,
     summary: preview.summary
@@ -381,6 +400,9 @@ async function abortable<T>(
   signal: AbortSignal | undefined,
   operation: Promise<T>
 ): Promise<T> {
+  // What: 给 provider/tool/permission 等异步操作统一接入 abort signal。Why:
+  // 用户按 q 或 Ctrl+C 后不能继续写入或推进下一步。How: signal 触发时拒绝
+  // promise，并在 operation 完成后移除 listener，避免泄漏。
   if (signal === undefined) {
     return operation;
   }

@@ -1,8 +1,8 @@
 # Context Engineering
 
-## v0.1 strategy
+## v0.1 策略
 
-v0.1 uses tool-driven repository inspection instead of preloading the repository.
+v0.1 使用 tool-driven repository inspection，而不是预加载整个 repository。
 
 ```txt
 system prompt
@@ -12,15 +12,15 @@ system prompt
 + final answer instruction
 ```
 
-## Why not embeddings in v0.1
+## 为什么 v0.1 不使用 embeddings
 
-Embeddings add indexing, storage, freshness, ranking, and evaluation complexity. v0.1 first validates the agent loop and tool protocol.
+Embeddings 会增加 indexing、storage、freshness、ranking 和 evaluation complexity。v0.1 先验证 agent loop 和 tool protocol。
 
-## Output grounding
+## 输出 grounding
 
-Final answers should mention inspected files by path.
+Final answers 应按 path 提及已 inspect 的 files。
 
-Example:
+示例：
 
 ```txt
 Inspected:
@@ -29,11 +29,11 @@ Inspected:
 - src/index.ts
 ```
 
-## Future
+## 后续方向
 
-| Release | Capability                             |
-| ------- | -------------------------------------- |
-| v0.1    | tool-driven inspection                 |
-| v0.3    | trace-informed eval                    |
-| v0.4    | repo map, file ranking, context budget |
-| v0.6    | visible memory-aware context           |
+| Release | 能力                                        |
+| ------- | ------------------------------------------- |
+| v0.1    | tool-driven inspection                      |
+| v0.3    | trace-informed eval                         |
+| v0.4    | repo map、file ranking、context budget 能力 |
+| v0.6    | visible memory-aware context                |

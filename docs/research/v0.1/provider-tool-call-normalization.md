@@ -1,21 +1,19 @@
-# Research: Provider Tool Call Normalization
+# 调研：Provider Tool Call Normalization
 
 ## Problem
 
-v0.1 uses OpenAI first while keeping a provider abstraction boundary. Provider
-SDKs expose different tool-call shapes, but `packages/core` must receive one
-internal `ToolCall` contract and must not import provider SDK types.
+v0.1 优先使用 OpenAI，同时保持 provider abstraction boundary。Provider SDKs 暴露的 tool-call shapes 不同，但 `packages/core` 必须接收一个 internal `ToolCall` contract，并且不得 import provider SDK types。
 
 ## Release relevance
 
-Scope classification: `v0.1 blocker`.
+Scope classification：`v0.1 blocker`。
 
-This work maps to:
+本工作映射到：
 
-- F-04 provider call;
-- F-05 tool normalization;
-- F-06 tool validation;
-- provider boundary requirements in engineering standards.
+- F-04 provider call；
+- F-05 tool normalization；
+- F-06 tool validation；
+- engineering standards 中的 provider boundary requirements。
 
 ## Sources reviewed
 
@@ -28,62 +26,54 @@ This work maps to:
 
 ## Industry practice
 
-Agent runtimes usually normalize provider responses at adapter boundaries. This
-keeps the core loop stable when SDK response shapes, model capabilities, or
-provider-specific tool-call variants change.
+Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这样在 SDK response shapes、model capabilities 或 provider-specific tool-call variants 改变时，core loop 仍能保持稳定。
 
 ## Alternatives considered
 
-| Option                                   | Description                                    | Decision                          |
-| ---------------------------------------- | ---------------------------------------------- | --------------------------------- |
-| Core reads provider SDK shapes           | Agent loop handles SDK responses directly      | Reject: violates package boundary |
-| Provider returns loosely typed JSON      | Core validates everything from scratch         | Reject: weak adapter contract     |
-| Adapter normalizes to internal contract  | Provider package maps SDK shapes to `ToolCall` | Accept                            |
-| Full multi-provider normalization matrix | Implement all provider variants in v0.1        | Reject: scope expansion           |
+| Option                                   | Description                                      | Decision                    |
+| ---------------------------------------- | ------------------------------------------------ | --------------------------- |
+| Core reads provider SDK shapes           | Agent loop 直接处理 SDK responses                | 拒绝：违反 package boundary |
+| Provider returns loosely typed JSON      | Core 从零校验全部内容                            | 拒绝：adapter contract 太弱 |
+| Adapter normalizes to internal contract  | Provider package 把 SDK shapes 映射到 `ToolCall` | 采用                        |
+| Full multi-provider normalization matrix | 在 v0.1 实现全部 provider variants               | 拒绝：scope expansion       |
 
 ## Trade-off matrix
 
-| Criterion               | Core SDK handling | Adapter normalization |
+| Criterion 指标          | Core SDK handling | Adapter normalization |
 | ----------------------- | ----------------- | --------------------- |
-| Boundary preservation   | Low               | High                  |
-| v0.1 simplicity         | Medium            | High                  |
-| OpenAI-first delivery   | Medium            | High                  |
-| Future provider support | Low               | Medium                |
-| Testability             | Low               | High                  |
+| Boundary preservation   | 低                | 高                    |
+| v0.1 simplicity         | 中                | 高                    |
+| OpenAI-first delivery   | 中                | 高                    |
+| Future provider support | 低                | 中                    |
+| Testability             | 低                | 高                    |
 
 ## Project-specific constraints
 
-- `packages/core` must not import OpenAI or Anthropic SDK types.
-- `packages/providers` must not execute tools.
-- Anthropic remains a boundary stub in v0.1.
-- Unknown or unsupported provider tool-call variants must fail safely.
-- Normalized calls must still pass strict tool validation in `packages/tools`.
+- `packages/core` 不得 import OpenAI 或 Anthropic SDK types。
+- `packages/providers` 不得 execute tools。
+- Anthropic 在 v0.1 中保持 boundary stub。
+- Unknown 或 unsupported provider tool-call variants 必须 fail safely。
+- Normalized calls 仍必须在 `packages/tools` 中通过 strict tool validation。
 
 ## Recommendation
 
-Keep provider-specific parsing inside `packages/providers`. The OpenAI adapter
-must map supported function tool calls to the internal `ToolCall` shape:
+将 provider-specific parsing 保留在 `packages/providers` 中。OpenAI adapter 必须把 supported function tool calls 映射为 internal `ToolCall` shape：
 
 ```txt
 { id, name, input }
 ```
 
-Unsupported tool-call variants should produce a provider error or be ignored
-only when that behavior is explicit and tested. The adapter must not pass raw
-SDK objects through to core.
+Unsupported tool-call variants 应产生 provider error，或只在 explicit 且已测试的情况下被 ignored。adapter 不得把 raw SDK objects 传给 core。
 
 ## Acceptance criteria impacted
 
-- F-04: provider receives normalized messages and tool specs.
-- F-05: provider tool calls normalize into internal calls.
-- F-06: normalized input is validated by the tool registry.
-- Engineering: provider SDK types stay out of core.
+- F-04：provider receives normalized messages and tool specs 已覆盖。
+- F-05：provider tool calls normalize into internal calls 已覆盖。
+- F-06：normalized input 由 tool registry validation。
+- Engineering：provider SDK types stay out of core 已覆盖。
 
 ## Open questions
 
-- Should unsupported tool-call variants fail the run or be skipped with a trace
-  event?
-- Should adapter tests use SDK-shaped fixture objects or higher-level provider
-  responses?
-- Should the Anthropic stub expose a normalization placeholder or remain a
-  hard error until its release target changes?
+- Unsupported tool-call variants 应 fail the run，还是 skipped with a trace event？
+- Adapter tests 应使用 SDK-shaped fixture objects，还是 higher-level provider responses？
+- Anthropic stub 应暴露 normalization placeholder，还是在 release target 改变前保持 hard error？

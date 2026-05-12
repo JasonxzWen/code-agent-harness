@@ -87,6 +87,9 @@ export interface ToolExecutionResult {
 }
 
 export interface ToolDefinition<TInput = unknown> extends ToolSpec {
+  // What: ToolDefinition 同时描述模型可见 schema、运行时 Zod schema、policy 和执行函数。
+  // Why: 模型输入不可信，必须在同一个定义里把提示契约和执行契约绑定。How:
+  // registry 先调用 inputSchema/evaluatePolicy，再按 permission 调用 execute。
   inputSchema: z.ZodType<TInput>;
   evaluatePolicy?(
     input: TInput,
@@ -97,6 +100,9 @@ export interface ToolDefinition<TInput = unknown> extends ToolSpec {
 }
 
 export interface PreparedToolCall {
+  // What: PreparedToolCall 是 permission gate 前的安全计划。Why: permission prompt
+  // 不能直接消费未校验的 model input。How: registry 只在 schema/policy 通过后产出它，
+  // 并可附带 bounded preview。
   callId: string;
   toolName: string;
   input: JsonObject;
@@ -115,6 +121,8 @@ export type ToolPreflightResult =
     };
 
 export interface ToolRegistry {
+  // What: ToolRegistry 拆分 prepare 和 execute。Why: v0.2 patch 需要“预检/预览”
+  // 和“批准后重检/写入”两个阶段。How: core 只调用 registry contract，不知道具体 tool 实现。
   specs: () => ToolSpec[];
   prepare: (
     call: ToolCall,
@@ -145,6 +153,8 @@ export interface ProviderGenerateRequest {
 }
 
 export interface ProviderClient {
+  // What: ProviderClient 是 core 唯一认识的模型边界。Why: OpenAI/Anthropic 等
+  // SDK shape 不能泄漏进 core。How: provider adapter 把 SDK 响应归一化为 ProviderResponse。
   name: string;
   generate: (request: ProviderGenerateRequest) => Promise<ProviderResponse>;
 }

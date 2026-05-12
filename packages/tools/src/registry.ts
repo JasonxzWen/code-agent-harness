@@ -39,6 +39,9 @@ export class DefaultToolRegistry implements ToolRegistry {
     call: ToolCall,
     context: ToolExecutorContext
   ): Promise<ToolPreflightResult> {
+    // What: prepare 是所有 tool call 的预检入口。Why: 模型输入必须先经过
+    // tool lookup、strict schema 和 deterministic policy，才能进入 permission prompt。
+    // How: 失败统一返回结构化 ToolExecutionResult，成功则返回 PreparedToolCall 和可选 preview。
     const tool = this.#tools.get(call.name);
     if (tool === undefined) {
       return {
@@ -123,6 +126,9 @@ export class DefaultToolRegistry implements ToolRegistry {
     call: ToolCall,
     context: ToolExecutorContext
   ): Promise<ToolExecutionResult> {
+    // What: execute 在真正执行前重复 schema 和 policy 检查。Why: approval 等待期间
+    // 输入对应的工作区状态可能变化，permission 也不能绕过 deterministic deny。How:
+    // policy 通过且 permission allow 后才调用具体 tool.execute。
     const tool = this.#tools.get(call.name);
     if (tool === undefined) {
       return {
@@ -212,6 +218,8 @@ export class DefaultToolRegistry implements ToolRegistry {
 }
 
 export function jsonObject(value: unknown): JsonObject {
+  // What: 将 Zod 解析出的对象安全地压回 JsonObject。Why: core/tool protocol 只允许
+  // JSON object input 进入 permission 和 trace。How: 非对象输入回退为空对象。
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
     return value as JsonObject;
   }
