@@ -1,6 +1,6 @@
-# OpenAI Provider
+# OpenAI provider 说明
 
-## v0.1.1 limitation
+## v0.1.1 限制
 
 `packages/providers/src/openai-provider.ts` 使用 OpenAI Chat Completions function tools 发起 tool-call requests，但 internal tool results 当前会映射回普通 `user` messages：
 

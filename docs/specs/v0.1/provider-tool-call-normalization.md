@@ -1,23 +1,23 @@
 # 规格：Provider Tool Call Normalization
 
-## Scope classification
+## 范围 classification
 
 `v0.1 blocker`
 
 本 spec 在 implementation 前定义 provider boundary。除非明确请求 implementation，否则它不授权 coding。
 
-## Problem
+## 问题
 
 Agent loop 必须使用单一 internal provider response contract。OpenAI SDK responses 和 future provider responses 不得泄漏到 `packages/core`。
 
-## User-facing behavior
+## 用户可见行为
 
 - Users 看到的 provider errors 是 structured run failures。
 - Valid provider tool calls 会触发 tool execution attempts。
 - Unsupported provider tool-call variants fail safely，且不会 execute tools。
 - Final answers 仍基于 inspected paths grounded。
 
-## Internal design
+## 内部设计
 
 Provider adapters 将 SDK responses 转换为：
 
@@ -39,7 +39,7 @@ export interface ToolCall {
 
 Core loop 不得 inspect SDK fields，例如 OpenAI `tool_calls`、`function` 或 provider-specific content parts。
 
-## APIs / contracts
+## APIs / contracts 契约
 
 Provider adapter responsibilities：
 
@@ -57,7 +57,7 @@ Core responsibilities：
 - 只处理 internal `ProviderResponse`；
 - 把 SDK-specific parsing 留给 providers。
 
-## Data/state model
+## 数据 / 状态模型
 
 Provider normalization 必须保留：
 
@@ -69,7 +69,7 @@ Provider normalization 必须保留：
 
 Provider-specific raw response objects 不得存入 run state。
 
-## Error handling
+## 错误处理
 
 | Case                          | Required behavior                                           |
 | ----------------------------- | ----------------------------------------------------------- |
@@ -79,14 +79,14 @@ Provider-specific raw response objects 不得存入 run state。
 | Empty final response          | 仅在已记录时返回 empty string final                         |
 | SDK request failure           | 返回 `provider_error`                                       |
 
-## Permission / security considerations
+## Permission / security 考量
 
 - Normalization 不验证 tool safety。
 - Normalized calls 仍通过 strict tool validation。
 - Provider output 不能绕过 permission gates。
 - Raw provider payloads 如果可能包含 secrets，不得写入 trace。
 
-## Testing plan
+## 测试计划
 
 Required tests：
 
@@ -97,7 +97,7 @@ Required tests：
 - provider errors 映射到 `provider_error`；
 - `packages/core` imports no provider SDK types。
 
-## Documentation impact
+## 文档影响
 
 Implementation 完成后更新这些文档：
 
@@ -106,7 +106,7 @@ Implementation 完成后更新这些文档：
 - `docs/engineering/testing-strategy.md`
 - `docs/adr/0004-provider-abstraction.md`，仅当 decision 改变时
 
-## Acceptance criteria
+## 验收标准
 
 满足以下条件时，本 spec 被 accepted：
 
@@ -115,7 +115,7 @@ Implementation 完成后更新这些文档：
 - core package boundary checks 保持 clean；
 - `bun run quality` passes。
 
-## Non-goals
+## 非目标
 
 - full Anthropic implementation；
 - streaming tool-call support；
@@ -123,7 +123,7 @@ Implementation 完成后更新这些文档：
 - core 中的 provider-specific behavior；
 - provider fallback or routing。
 
-## Rollout plan
+## Rollout 计划
 
 1. 使用 SDK-shaped fixtures 添加 adapter normalization tests。
 2. 确保 OpenAI function tool calls 映射到 internal `ToolCall`。

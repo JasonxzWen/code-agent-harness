@@ -25,7 +25,7 @@
 5. 从 v0.1 开始保留事件 trace，便于调试和后续评估。
 6. OpenClaw 和 Hermes Agent 说明成熟平台会把 skills、memory、sandbox、cron、MCP、多 agent 组合起来；本项目当前不追平台完整度，先追可验证 harness 内核。
 
-## Sources
+## 来源
 
 - OpenAI Codex customization: https://developers.openai.com/codex/concepts/customization
 - OpenAI Codex AGENTS.md: https://developers.openai.com/codex/guides/agents-md

@@ -1,4 +1,4 @@
-# Tool Protocol
+# Tool protocol 说明
 
 ## 接口
 
@@ -87,7 +87,7 @@ Permission request 和 decision events 作为 `permission.requested` 和 `permis
 
 对于 patch requests，`permission.requested` 记录 preview metadata 和 omitted-input marker，而不是完整 raw patch。完整 diff 只存在于 active approval prompt 使用的 in-memory `PermissionRequest` 中。
 
-## Patch tool policy
+## Patch tool 策略
 
 `apply_patch` 在 approval 前拒绝任何 deterministic policy failure：
 

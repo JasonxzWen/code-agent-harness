@@ -1,4 +1,4 @@
-# ADR-0002: Read Only V0.1
+# ADR-0002：Read-only v0.1
 
 ## 状态
 
@@ -18,7 +18,7 @@ v0.1 保持 read-only，在 file editing 之前先验证 agent loop 和 safety b
 - 只在 prompts 中编码该决策。
 - 在 ADR 中记录该决策。
 
-## Trade-offs
+## 取舍
 
 Pros：
 
@@ -31,6 +31,6 @@ Cons：
 - 增加 documentation overhead；
 - stale ADRs 必须维护。
 
-## Revisit
+## 复审条件
 
 当相关 release scope 改变，或 implementation evidence 与该决策冲突时 revisit。

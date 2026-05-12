@@ -1,6 +1,6 @@
 # 项目章程
 
-## Mission
+## 使命
 
 构建一个 release-driven coding agent harness，面向真实仓库，具备透明的运行时契约、安全的 tool execution、可观察的 agent behavior，以及 terminal-first developer experience。
 
@@ -26,7 +26,7 @@
 - release documentation；
 - extensible architecture。
 
-## Non-goals
+## 非目标
 
 - chatbot UI；
 - general-purpose assistant；
@@ -35,7 +35,7 @@
 - hidden persistent memory；
 - core runtime 存在前的 broad integrations。
 
-## Public surfaces
+## 公开接口
 
 以下内容视为 public contracts：
 

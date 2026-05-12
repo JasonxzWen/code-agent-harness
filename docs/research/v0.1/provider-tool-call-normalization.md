@@ -1,10 +1,10 @@
 # 调研：Provider Tool Call Normalization
 
-## Problem
+## 问题
 
 v0.1 优先使用 OpenAI，同时保持 provider abstraction boundary。Provider SDKs 暴露的 tool-call shapes 不同，但 `packages/core` 必须接收一个 internal `ToolCall` contract，并且不得 import provider SDK types。
 
-## Release relevance
+## Release 相关性
 
 Scope classification：`v0.1 blocker`。
 
@@ -15,7 +15,7 @@ Scope classification：`v0.1 blocker`。
 - F-06 tool validation；
 - engineering standards 中的 provider boundary requirements。
 
-## Sources reviewed
+## 来源 reviewed
 
 - `docs/releases/v0.1.0-contract.md`
 - `docs/architecture/v0.1-minimal-coding-agent.md`
@@ -24,11 +24,11 @@ Scope classification：`v0.1 blocker`。
 - `docs/engineering/standards.md`
 - `docs/engineering/testing-strategy.md`
 
-## Industry practice
+## 行业实践
 
 Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这样在 SDK response shapes、model capabilities 或 provider-specific tool-call variants 改变时，core loop 仍能保持稳定。
 
-## Alternatives considered
+## 备选方案
 
 | Option                                   | Description                                      | Decision                    |
 | ---------------------------------------- | ------------------------------------------------ | --------------------------- |
@@ -37,7 +37,7 @@ Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这�
 | Adapter normalizes to internal contract  | Provider package 把 SDK shapes 映射到 `ToolCall` | 采用                        |
 | Full multi-provider normalization matrix | 在 v0.1 实现全部 provider variants               | 拒绝：scope expansion       |
 
-## Trade-off matrix
+## 取舍矩阵
 
 | Criterion 指标          | Core SDK handling | Adapter normalization |
 | ----------------------- | ----------------- | --------------------- |
@@ -47,7 +47,7 @@ Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这�
 | Future provider support | 低                | 中                    |
 | Testability             | 低                | 高                    |
 
-## Project-specific constraints
+## 项目特定约束
 
 - `packages/core` 不得 import OpenAI 或 Anthropic SDK types。
 - `packages/providers` 不得 execute tools。
@@ -55,7 +55,7 @@ Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这�
 - Unknown 或 unsupported provider tool-call variants 必须 fail safely。
 - Normalized calls 仍必须在 `packages/tools` 中通过 strict tool validation。
 
-## Recommendation
+## 建议
 
 将 provider-specific parsing 保留在 `packages/providers` 中。OpenAI adapter 必须把 supported function tool calls 映射为 internal `ToolCall` shape：
 
@@ -65,14 +65,14 @@ Agent runtimes 通常在 adapter boundaries 归一化 provider responses。这�
 
 Unsupported tool-call variants 应产生 provider error，或只在 explicit 且已测试的情况下被 ignored。adapter 不得把 raw SDK objects 传给 core。
 
-## Acceptance criteria impacted
+## 影响的验收标准
 
 - F-04：provider receives normalized messages and tool specs 已覆盖。
 - F-05：provider tool calls normalize into internal calls 已覆盖。
 - F-06：normalized input 由 tool registry validation。
 - Engineering：provider SDK types stay out of core 已覆盖。
 
-## Open questions
+## 开放问题
 
 - Unsupported tool-call variants 应 fail the run，还是 skipped with a trace event？
 - Adapter tests 应使用 SDK-shaped fixture objects，还是 higher-level provider responses？

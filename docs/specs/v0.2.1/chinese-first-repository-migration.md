@@ -1,14 +1,14 @@
 # 规格：Chinese-first Repository Migration
 
-## Scope Classification
+## Scope classification 分类
 
 `later release`。`v0.2.1` 是文档、流程和源码可读性 release，不改变 agent loop、tool calling、provider、patch tool、TUI、MCP、sandbox、subagents 或 IDE extension 的运行时行为。
 
-## Problem
+## 问题
 
 当前仓库已经开始要求新增 release-facing docs 使用中文正文，但语言规则分散，且 README、CHANGELOG、AGENTS、skills、templates、engineering docs、历史 ADR/research/spec 的迁移边界不清晰。后续 agent session 可能继续产出英文规范或用英文汇报，从而削弱仓库的中文优先目标。
 
-## User-facing Behavior
+## 用户可见行为
 
 后续仓库迭代默认表现为：
 
@@ -18,9 +18,9 @@
 - 核心源码注释默认中文，使用 UTF-8，解释 what、why、how。
 - 代码标识符、命令、包名、路径、API、外部项目名、引用标题保留原文。
 
-## Internal Design
+## 内部设计
 
-### Document Inventory and Classification 文档清单与分类
+### 文档清单与分类
 
 | Category                | 当前路径                                                                                                             | 迁移要求                                                                     |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -35,7 +35,7 @@
 | auxiliary docs          | `.codex/hooks/README.md`, `MANIFEST.md`, `scripts/ralph/CODEX.md`, fixture README                                    | 全部迁移为中文优先正文。                                                     |
 | source comments         | `apps/cli/src/**`, `packages/core/src/**`, `packages/tools/src/**`, `packages/providers/src/**`, `scripts/smoke*.ts` | 核心逻辑补充中文 what/why/how 注释；UTF-8 编码；不改变运行时行为。           |
 
-### Chinese-first Rules
+### 中文优先规则
 
 必须使用中文正文：
 
@@ -67,7 +67,7 @@
 - 多语言文档站点或翻译流水线；
 - 运行时代码中的英文标识；源码注释已纳入本 release 的可读性需求。
 
-## APIs / Contracts
+## APIs / Contracts 契约
 
 本 release 不新增运行时 API。新增或更新的文档契约为：
 
@@ -77,7 +77,7 @@
 - `.agents/skills/*/SKILL.md` 必须在执行本仓库任务时遵守中文优先政策。
 - 核心源码注释遵守 `docs/engineering/standards.md` 的源码注释和编码标准。
 
-## Data / State Model
+## 数据 / 状态模型
 
 迁移状态通过 checklist 和 future audit 记录，不引入数据库或状态文件：
 
@@ -90,7 +90,7 @@
 | `done`            | 正文中文化完成，保护项未误翻译。                         |
 | `commented`       | 核心源码已有中文 what/why/how 注释，且未改变运行时行为。 |
 
-## Error Handling
+## 错误处理
 
 文档迁移错误按人工 review 和 checklist 处理：
 
@@ -100,7 +100,7 @@
 - 历史文档语义不确定：暂缓全文翻译，添加中文摘要或 reviewer note。
 - 注释与代码行为不一致：标记 blocker，修正注释或代码；不能让注释解释不存在的行为。
 
-## Permission / Security Considerations
+## Permission / Security 考量
 
 - 不修改产品权限模型。
 - 不改变产品运行时行为；源码注释只能解释现有逻辑。
@@ -108,7 +108,7 @@
 - 不批量改写含安全策略、secret policy、permission policy 的历史文档，避免误改安全语义。
 - 命令块和路径必须保持可复制执行，不因中文化改变语义。
 
-## Testing Plan
+## 测试计划
 
 本阶段只做文档和规范更新。测试计划：
 
@@ -129,7 +129,7 @@
 - Mermaid syntax check；
 - command block preservation check。
 
-## E2E Acceptance Plan
+## E2E 验收计划
 
 场景：新会话中文优先规则发现。
 
@@ -148,7 +148,7 @@
 - agent 能拒绝未批准的大规模批量翻译；
 - agent 能给出中文 release contract/spec/checklist 的下一步。
 
-## Benchmark Plan
+## Benchmark 计划
 
 Benchmark question：仓库是否已经具备可审计的中文优先迁移路径，并能量化剩余迁移工作？
 
@@ -164,7 +164,7 @@ Benchmark question：仓库是否已经具备可审计的中文优先迁移路�
 
 `bun run audit:language` 是 v0.2.1 的独立 release readiness gate。第一版不接入 `bun run quality` 或 CI；待误报和 allowlist 校准后，再把它升级为 blocking quality/CI gate。结果应记录为 manual audit、heuristic audit 或 planned automation，不得写成 executed comparison。
 
-## Documentation Impact
+## 文档影响
 
 新增：
 
@@ -186,7 +186,7 @@ Benchmark question：仓库是否已经具备可审计的中文优先迁移路�
 - `scripts/audit-language.ts`
 - 核心源码注释：`packages/core/src/**`、`packages/tools/src/**`、`packages/providers/src/**`、`apps/cli/src/**`、`scripts/smoke*.ts`
 
-## Acceptance Criteria
+## 验收标准
 
 - 所有新增 v0.2.1 规划文档正文为中文。
 - 文档分类、迁移顺序、风险控制、验收机制、E2E 和 benchmark plan 已定义。
@@ -195,14 +195,14 @@ Benchmark question：仓库是否已经具备可审计的中文优先迁移路�
 - 核心源码中文注释覆盖主要 what/why/how 路径，UTF-8 编码，不改变运行时行为。
 - `bun run audit:language` 可重复运行，并将明显英文正文残留和核心源码注释缺口报告为 blocker。
 
-## Non-goals
+## 非目标
 
 - 不改变产品功能代码行为；允许注释级源码可读性改动。
 - 不新增 UI、provider、patch tool、MCP、sandbox、subagents、IDE extension。
 - 不建立自动翻译或多语言站点。
 - 不伪造未运行的验收或 benchmark。
 
-## Rollout Plan
+## Rollout 计划
 
 1. `v0.2.1 planning`：完成 contract、research、spec、checklist、language policy 和入口引用。当前状态：done。
 2. `template pass`：迁移 `docs/templates/*`，让新文档默认中文。当前状态：done。
