@@ -69,8 +69,9 @@ export class DefaultToolRegistry implements ToolRegistry {
       };
     }
 
+    let preview;
     try {
-      await tool.evaluatePolicy?.(parsed.data, context);
+      preview = await tool.evaluatePolicy?.(parsed.data, context);
     } catch (error) {
       if (error instanceof ToolPolicyError) {
         return {
@@ -95,14 +96,26 @@ export class DefaultToolRegistry implements ToolRegistry {
       };
     }
 
+    const prepared = {
+      callId: call.id,
+      toolName: call.name,
+      input: jsonObject(parsed.data),
+      defaultPermission: tool.defaultPermission
+    };
+
+    if (preview !== undefined) {
+      return {
+        ok: true,
+        prepared: {
+          ...prepared,
+          preview
+        }
+      };
+    }
+
     return {
       ok: true,
-      prepared: {
-        callId: call.id,
-        toolName: call.name,
-        input: jsonObject(parsed.data),
-        defaultPermission: tool.defaultPermission
-      }
+      prepared
     };
   }
 
@@ -167,12 +180,17 @@ export class DefaultToolRegistry implements ToolRegistry {
 
     try {
       const output = await tool.execute(parsed.data, context);
-      return {
+      const metadata = tool.buildResultMetadata?.(output);
+      const result: ToolExecutionResult = {
         callId: call.id,
         toolName: call.name,
         ok: true,
         output
       };
+      if (metadata !== undefined) {
+        result.metadata = metadata;
+      }
+      return result;
     } catch (error) {
       if (error instanceof ToolPolicyError) {
         return {

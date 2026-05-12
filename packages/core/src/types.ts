@@ -15,6 +15,7 @@ export type AgentErrorKind =
   | "permission_denied"
   | "path_policy_violation"
   | "secret_policy_violation"
+  | "patch_policy_violation"
   | "command_policy_violation"
   | "timeout"
   | "internal_error";
@@ -50,12 +51,20 @@ export interface ToolCall {
 
 export type PermissionDecision = "allow" | "ask" | "deny";
 
+export interface ToolPreview {
+  title: string;
+  summary: JsonObject;
+  body?: string;
+  truncated?: boolean;
+}
+
 export interface PermissionRequest {
   runId: string;
   callId: string;
   toolName: string;
   input: JsonObject;
   reason?: string;
+  preview?: ToolPreview;
 }
 
 export interface PermissionGate {
@@ -79,8 +88,12 @@ export interface ToolExecutionResult {
 
 export interface ToolDefinition<TInput = unknown> extends ToolSpec {
   inputSchema: z.ZodType<TInput>;
-  evaluatePolicy?(input: TInput, context: ToolExecutorContext): Promise<void> | void;
+  evaluatePolicy?(
+    input: TInput,
+    context: ToolExecutorContext
+  ): Promise<ToolPreview | void> | ToolPreview | void;
   execute(input: TInput, context: ToolExecutorContext): Promise<JsonValue> | JsonValue;
+  buildResultMetadata?(output: JsonValue): JsonObject | undefined;
 }
 
 export interface PreparedToolCall {
@@ -88,6 +101,7 @@ export interface PreparedToolCall {
   toolName: string;
   input: JsonObject;
   defaultPermission: PermissionDecision;
+  preview?: ToolPreview;
 }
 
 export type ToolPreflightResult =

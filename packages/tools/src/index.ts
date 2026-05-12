@@ -1,4 +1,5 @@
 export { runCommandTool } from "./command-tool";
+export { applyPatchTool } from "./patch-tool";
 export {
   gitStatusTool,
   listFilesTool,
@@ -15,6 +16,7 @@ export {
 } from "./policies";
 
 import type { ToolDefinition, ToolRegistry } from "@code-agent-harness/core";
+import { applyPatchTool } from "./patch-tool";
 import { runCommandTool } from "./command-tool";
 import {
   gitStatusTool,
@@ -30,6 +32,7 @@ export function createDefaultToolRegistry(
     readFileTool,
     searchRepoTool,
     gitStatusTool,
+    applyPatchTool,
     runCommandTool
   ]
 ): ToolRegistry {

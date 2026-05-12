@@ -21,6 +21,8 @@ Template:
 
 ## Sources reviewed
 
+## Industry scan
+
 ## Industry practice
 
 ## Alternatives considered
@@ -35,6 +37,12 @@ Template:
 
 ## Open questions
 ```
+
+`Industry scan` is required for release work. It must list the current
+mainstream products or projects checked for the release decision. Start with
+OpenAI Codex, Claude Code, and opencode, then add release-relevant peers such as
+Aider, OpenHands, OpenClaw, or Hermes Agent. For each source, record the
+decision signal for this project, not just a link.
 
 ## Spec
 
@@ -66,6 +74,10 @@ Template:
 ## Permission/security considerations
 
 ## Testing plan
+
+## E2E acceptance plan
+
+## Benchmark plan
 
 ## Documentation impact
 
@@ -99,3 +111,7 @@ Before implementation, provide a short brief:
 ```
 
 The brief should recommend a default rather than ask open-ended design questions.
+For release work, the brief must state which industry scan was refreshed and how
+it shaped the recommendation.
+It must also identify the planned E2E acceptance scenario and benchmark question
+for each user-visible feature.

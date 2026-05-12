@@ -7,9 +7,11 @@ import type {
   JsonObject,
   PermissionDecision,
   PermissionGate,
+  PermissionRequest,
   PreparedToolCall,
   ProviderClient,
   ProviderGenerateRequest,
+  ToolPreview,
   ToolExecutionResult,
   ToolExecutorContext,
   ToolRegistry,
@@ -29,10 +31,12 @@ export interface RunAgentTaskInput {
 }
 
 const SYSTEM_PROMPT = [
-  "You are a read-only coding agent for v0.1.",
+  "You are a patch-capable coding agent for v0.2.",
   "Inspect repositories through tools before answering.",
+  "Use apply_patch for code changes and wait for explicit approval before writes.",
+  "When patch results exist, list modified files and validation status in the final answer.",
   "Cite inspected file paths in final answers.",
-  "Do not claim to edit, patch, or persist memory."
+  "Do not auto-stage, commit, push, or persist memory."
 ].join(" ");
 
 export async function runAgentTask(input: RunAgentTaskInput): Promise<AgentRunState> {
@@ -199,20 +203,36 @@ async function resolvePermission(
     return "deny";
   }
 
-  const request = {
+  const request: PermissionRequest = {
     runId,
     callId: prepared.callId,
     toolName: prepared.toolName,
     input: prepared.input,
     reason: "Tool default permission is ask."
   };
+  if (prepared.preview !== undefined) {
+    request.preview = prepared.preview;
+  }
 
-  await emit(input, runId, "permission.requested", {
+  const requestedData: JsonObject = {
     callId: request.callId,
     toolName: request.toolName,
-    input: request.input,
-    reason: request.reason
-  });
+    input:
+      request.preview === undefined
+        ? request.input
+        : {
+            omitted: true,
+            reason: "preview_available"
+          }
+  };
+  if (request.reason !== undefined) {
+    requestedData.reason = request.reason;
+  }
+  if (request.preview !== undefined) {
+    requestedData.preview = previewForTrace(request.preview);
+  }
+
+  await emit(input, runId, "permission.requested", requestedData);
 
   const rawDecision =
     input.permissionGate === undefined
@@ -295,12 +315,33 @@ async function emitToolCompleted(
   runId: string,
   result: ToolExecutionResult
 ): Promise<void> {
-  await emit(input, runId, "tool.completed", {
+  const data: JsonObject = {
     callId: result.callId,
     toolName: result.toolName,
     ok: result.ok,
     errorKind: result.error?.kind ?? null
-  });
+  };
+  if (result.metadata !== undefined) {
+    data.metadata = result.metadata;
+  }
+  await emit(input, runId, "tool.completed", data);
+}
+
+function previewForTrace(preview: ToolPreview): JsonObject {
+  const tracePreview: JsonObject = {
+    title: preview.title,
+    summary: preview.summary
+  };
+
+  if (preview.truncated !== undefined) {
+    tracePreview.truncated = preview.truncated;
+  }
+
+  if (preview.body !== undefined) {
+    tracePreview.bodyBytes = Buffer.byteLength(preview.body, "utf8");
+  }
+
+  return tracePreview;
 }
 
 async function emit(

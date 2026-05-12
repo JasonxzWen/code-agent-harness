@@ -16,9 +16,17 @@ Research
 
 ## When research is required
 
-Research is required for new components, public contracts, provider behavior, permissions, context strategy, evaluation, security, or dependency choices.
+Research is required for every release and for new components, public
+contracts, provider behavior, permissions, context strategy, evaluation,
+security, or dependency choices.
 
 Research is not required for small fixes where the correct behavior is already documented.
+
+Every release must include a scoped industry scan before implementation starts.
+At minimum, review current public material for OpenAI Codex, Claude Code, and
+opencode, plus any release-relevant peers such as Aider, OpenHands, OpenClaw,
+or Hermes Agent. The scan must map external behavior to this project's release
+scope; it must not become a feature wishlist.
 
 ## When coding may begin
 
@@ -27,6 +35,10 @@ Coding may begin when:
 - the scope classification is clear;
 - the relevant release contract is not violated;
 - the spec defines acceptance criteria;
+- release-relevant industry practice has been reviewed or explicitly judged not
+  applicable with a reason;
+- user-visible features have an E2E acceptance plan;
+- release features have a benchmark question, metrics, and expected evidence;
 - required public behavior and tests are known.
 
 ## Implementation expectations
@@ -34,12 +46,16 @@ Coding may begin when:
 - inspect relevant files before editing;
 - make focused changes;
 - add/update tests;
+- add/update E2E acceptance for user-visible workflows;
+- update benchmark evidence for release features;
 - update docs for public behavior;
 - update release documentation when behavior, capability boundaries, quality
   evidence, or user-facing workflows change;
 - run quality gates;
 - self-review the diff;
 - report limitations honestly.
+- when pausing for review, explain the current change with what changed, why it
+  changed, and how it was implemented, using concrete file and line references.
 
 ## Release documentation expectations
 

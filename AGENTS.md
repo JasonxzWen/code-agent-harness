@@ -100,13 +100,26 @@ For v0.1 blockers, do not start implementation until the relevant
 
 Every release must have user-facing documentation that explains:
 
-- features and user-visible behavior;
+- each feature: what it is, the user need, the primary scenario, comparable
+  product behavior, this project's approach, why that approach fits, how it is
+  implemented, E2E acceptance, benchmark evidence, and limitations;
 - key logic and code definition locations;
 - a Mermaid diagram for the release flow or change boundary;
 - why the current implementation was chosen;
 - how comparable projects such as Claude Code, Codex, opencode, OpenClaw, and
   Hermes Agent approach the same problem;
 - why this project chooses its current release-scoped approach.
+
+Before release implementation starts, refresh the comparable-project research
+for at least Codex, Claude Code, and opencode, plus release-relevant peers. The
+research must map external behavior to this release's scope and must not expand
+scope by imitation.
+
+User-visible release features must not ship with unit tests alone. Add E2E
+acceptance evidence from a user-level entrypoint to final answer, artifact,
+trace, or worktree evidence. Each release feature must also define benchmark
+questions, metrics, fixtures, commands or artifacts, thresholds, results, peer
+baselines, and caveats.
 
 From `v0.2.0` onward, new release-facing docs must use Chinese as the body
 language. Code identifiers, commands, package names, and external source titles
@@ -133,7 +146,10 @@ Do not claim a command passed unless it was run and passed.
 ```md
 ## Completed
 
-## Files changed
+## Review focus
+
+| What changed | Why | How | File:line | Review focus |
+| ------------ | --- | --- | --------- | ------------ |
 
 ## Quality gates
 
@@ -152,3 +168,9 @@ Do not claim a command passed unless it was run and passed.
 
 ## Next step
 ```
+
+When pausing for human review, do not use a bare file list as the main handoff.
+Summarize the key change points with what/why/how and file/line references so
+the reviewer can understand the change, then jump directly to the important
+code, test, or documentation locations. Use a Feynman-style explanation:
+plain-language first, concrete implementation path second.

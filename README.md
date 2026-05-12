@@ -22,7 +22,8 @@ logging, and evaluation readiness.
 - not a demo website;
 - not a general assistant;
 - not a Devin clone;
-- not edit-capable in v0.1.
+- not edit-capable in the current v0.1 release;
+- not an auto-commit or auto-PR bot.
 
 ## Current release
 
@@ -36,6 +37,33 @@ User Task
 → Grounded Final Response
 → JSONL Trace
 ```
+
+## In Development
+
+Target: `v0.2.0 Patch-capable Agent`
+
+```txt
+User Task
+-> Agent Loop
+-> Tool Calling
+-> Safe Repo Read
+-> Patch Preview
+-> Explicit Approval
+-> Apply Patch
+-> Grounded Final Response
+-> JSONL Trace
+```
+
+v0.2 adds one controlled write tool:
+
+```txt
+apply_patch: ask
+```
+
+`apply_patch` preflights unified diffs, rejects deterministic policy failures,
+shows a preview before approval, revalidates before writing, and writes only to
+the working tree. It does not stage, commit, push, add sandboxing, or broaden
+`run_command`.
 
 ## Quickstart
 
@@ -83,6 +111,14 @@ restricted commands: ask
 write operations: unavailable
 ```
 
+v0.2 development defaults:
+
+```txt
+read tools: allow
+restricted commands: ask
+apply_patch: ask
+```
+
 ## Development
 
 ```bash
@@ -102,7 +138,7 @@ bun run quality
 ```txt
 apps/cli              Ink TUI and user interaction
 packages/core         agent loop, config, events, and public runtime contracts
-packages/tools        read-only tools, validation, and safety policy
+packages/tools        read tools, apply_patch, validation, and safety policy
 packages/providers    provider adapters and normalized provider boundary
 fixtures/tiny-ts-repo deterministic smoke-test repository
 scripts               smoke and live smoke entrypoints
@@ -112,14 +148,20 @@ scripts               smoke and live smoke entrypoints
 
 v0.1 is intentionally read-only.
 
-It does not:
+v0.2 patch support is intentionally narrow. It does not:
 
-- edit files;
-- apply patches;
+- auto-stage, auto-commit, auto-push, or create PRs;
+- apply binary, mode, symlink, rename, or copy patches;
+- modify secret-looking paths;
+- resolve merge conflicts automatically;
 - use persistent memory;
 - run product-level subagents;
 - integrate MCP;
 - provide sandbox isolation.
+
+Live OpenAI runs also inherit the current provider limitation documented in
+`docs/agent/openai-provider.md`: tool results are passed back as plain `user`
+messages, not provider-native `tool_call_id` messages.
 
 ## Roadmap
 

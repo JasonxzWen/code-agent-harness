@@ -4,6 +4,17 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- v0.2 core preview contract with `ToolPreview`,
+  `PreparedToolCall.preview`, and `PermissionRequest.preview`.
+- `apply_patch` as the first controlled write tool, defaulting to `ask` and
+  requiring diff preview approval before writing.
+- Patch policy tests for invalid patches, path traversal, symlink escape,
+  secret paths, binary/mode/symlink patches, dirty touched files,
+  non-applicable patches, oversized patches, preview truncation, and no hidden
+  stage/commit behavior.
+
 ## [0.1.1] - 2026-05-11
 
 ### Changed

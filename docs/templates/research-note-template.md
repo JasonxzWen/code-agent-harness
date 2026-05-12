@@ -6,6 +6,8 @@
 
 ## Sources reviewed
 
+## Industry scan
+
 ## Industry practice
 
 ## Alternatives considered
