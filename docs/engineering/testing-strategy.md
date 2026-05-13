@@ -18,6 +18,9 @@ Build checks
 Smoke tests
   -> CLI/harness-level basic run
 
+Evaluation harness
+  -> fixed task matrix, deterministic trace scoring, JSON/Markdown/HTML reports
+
 E2E acceptance
   -> user workflow from task input to final answer/artifact/trace
 
@@ -87,6 +90,27 @@ Benchmark evidence 应记录：
 | Apply path       | approved patch 只修改 expected files                                     |
 | Git boundary     | patch apply 不 stage、commit 或 push                                     |
 | CLI preview      | prompt renders preview title、summary、truncated diff 和 decision UI     |
+
+## v0.3 eval harness 必需测试
+
+| Area           | Required tests                                                                         |
+| -------------- | -------------------------------------------------------------------------------------- |
+| Task schema    | fixed P0 task matrix 可被 schema 校验并稳定排序                                        |
+| Trace parser   | valid JSONL 和 parse error 都有结构化结果                                              |
+| Eval runner    | deterministic provider + real registry + isolated worktree 可执行 suite                |
+| Patch approval | report 证明 file change、permission request、no staged changes、no commit              |
+| Safety denial  | permission denial 和 command policy denial 都证明无写入                                |
+| Report writers | JSON、Markdown、HTML 都包含 totals、task results、checks、limitations                  |
+| HTML escaping  | trace / final answer / evidence 内容写入 HTML 前必须 escaping                          |
+| Report privacy | JSON、Markdown、HTML 写入前必须扫描，禁止本机绝对路径、用户目录和 token-looking secret |
+| Release log    | `CHANGELOG.md` 解析结果写入 report data model，并在 HTML 中呈现 release timeline       |
+| HTML browser   | 生成的 `report.html` 可打开、非空，status filter 和展开/折叠控件可用                   |
+
+当前 E2E 命令：
+
+```bash
+bun run eval -- --suite v0.3 --out .agent-harness/evals/latest
+```
 
 ## CI
 

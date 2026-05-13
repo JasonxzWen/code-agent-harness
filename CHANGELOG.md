@@ -13,6 +13,11 @@
 - v0.2 core preview contract：`ToolPreview`、`PreparedToolCall.preview` 和 `PermissionRequest.preview`。
 - `apply_patch` 作为第一个受控写入工具，默认 `ask`，写入前必须展示 diff preview 并获得批准。
 - Patch policy tests，覆盖 invalid patches、path traversal、symlink escape、secret paths、binary/mode/symlink patches、dirty touched files、non-applicable patches、oversized patches、preview truncation 和无 hidden stage/commit 行为。
+- `v0.3 Evaluation Harness`：新增 `bun run eval -- --suite v0.3 --out <dir>`，运行 fixed deterministic task matrix，解析 JSONL trace，执行 deterministic checks，并输出 JSON / Markdown / self-contained HTML reports。
+- v0.3 HTML report 支持 status filter、展开/折叠检查和失败摘要复制，用于本地 release review，不引入 dashboard、线上服务或 leaderboard。
+
+- v0.3 HTML report 新增 release log 数据区，从 `CHANGELOG.md` 解析 version、date、status、sections 和 items，在同一 report writer 中呈现 release timeline。
+- v0.3 report privacy spec：JSON / Markdown / HTML reports 严禁输出本机绝对路径、用户主目录、系统用户名或 token-looking secret；报告路径统一转换为 repo-relative path 或 `[external-output]/...`。
 
 ## [0.1.1] - 2026-05-11
 
