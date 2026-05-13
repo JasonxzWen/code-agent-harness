@@ -20,7 +20,8 @@ description: 创建或准备 release 前使用，检查 release contract、quali
 7. 确认每个用户可见 feature 都有 E2E acceptance evidence。除非 feature 不是用户可见行为且例外已记录，否则 unit tests alone 不足以发布。
 8. 确认 release features 的 benchmark evidence：benchmark question、metric、fixture、command 或 artifact、threshold、result、peer baseline 和 caveats。
 9. 确认 demo script 和 fixture repo。
-10. 产出 release readiness report：
+10. 确认 release 或 Ralph loop 完成后存在 self-contained HTML 变更汇报；默认路径为 `.agent-harness/reports/latest/change-report.html`。如果未产出，必须把原因记录为 release readiness limitation。
+11. 产出 release readiness report：
 
 - scope status；
 - quality status；
@@ -28,6 +29,7 @@ description: 创建或准备 release 前使用，检查 release contract、quali
 - feature-card status；
 - E2E acceptance status；
 - benchmark status；
+- HTML change report status；
 - known limitations；
 - blockers；
 - release recommendation。

@@ -95,6 +95,41 @@ agent 在代码或文档变更后暂停给人工 review 时，报告必须围绕
 
 不要把裸的 "files changed" 列表作为主要 review handoff。
 
+## 开发完成 HTML 变更汇报规范
+
+当完成 release work、Ralph loop、跨多文件实现、用户明确要求 HTML 汇报，或变更需要人工长时间 review 时，agent 必须额外产出 self-contained HTML 变更汇报。它用于本地审查，不替代 chat final report、release note、PR description 或机器可读 eval report。
+
+默认路径：
+
+```txt
+.agent-harness/reports/latest/change-report.html
+```
+
+如需保留多个历史版本，可使用：
+
+```txt
+.agent-harness/reports/<YYYYMMDD-HHMM>-<short-slug>/change-report.html
+```
+
+HTML 变更汇报必须包含：
+
+- 本次目标和 scope；
+- what / why / how 变更点；
+- review focus 表格，含 repo-relative `file:line`；
+- 已运行命令和真实结果；
+- E2E、benchmark 或 browser evidence，若适用；
+- 已知限制、未运行项和下一步；
+- git branch 和 worktree 状态摘要。
+
+约束：
+
+- 报告必须是自包含静态 HTML，默认不依赖外部 CSS、JS、image 或 hosted service。
+- 报告正文默认中文；代码标识符、命令、路径、API、外部项目名和引用标题保留原文。
+- 报告内容不得声称未运行的 E2E、benchmark、browser smoke 或 quality gate 已通过。
+- 报告默认使用 repo-relative path；不得写入 secret、token-looking value、用户主目录或与审查无关的本机私有路径。
+- 如果 HTML 汇报本身包含交互控件或复杂布局，必须做 browser smoke 或记录未运行原因。
+- final response 必须给出该 HTML 报告路径，并继续保留简短 Review focus 和质量门禁摘要，方便不打开浏览器的 reviewer 快速判断。
+
 ## Runtime contract 契约s
 
 - 将 model-generated tool input 视为不可信外部输入。

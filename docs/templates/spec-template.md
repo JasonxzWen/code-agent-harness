@@ -24,6 +24,9 @@
 
 ## 文档影响
 
+- `docs/research/<release>/<topic>.md`
+- 可选：`docs/research/<release>/<topic>-technical-report.html`
+
 ## 验收标准
 
 ## 非目标

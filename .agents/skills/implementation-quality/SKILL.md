@@ -26,6 +26,7 @@ description: 实施已批准变更时使用，确保 coding、tests、docs、qua
    - `bun run smoke`
 9. 尽可能修复失败。
 10. 使用 `docs/engineering/code-review.md` 自审 diff。
-11. 返回最终汇报，包含 review-focused change points、file and line number references、quality gate table、self-review、limitations 和 next step。每个 change point 必须用 plain language 说明 what changed、why changed、how it works，再指向实现位置。这是 Feynman-style handoff：reviewer 不需要先读完整 diff，也应能理解变更、设计选择和验证方式。请求人工审查时，不要使用 bare files-changed list 作为主交接。
+11. 对 release work、Ralph loop、跨多文件实现，或用户明确要求 HTML 汇报的任务，生成 self-contained HTML 变更汇报，默认写入 `.agent-harness/reports/latest/change-report.html`。该报告必须说明目标、scope、what/why/how、review focus、真实 quality gates、E2E/benchmark evidence、limitations、git 状态，并默认不依赖外部 CSS/JS/image。若未生成，必须在 final report 中说明原因。
+12. 返回最终汇报，包含 HTML report path、review-focused change points、file and line number references、quality gate table、self-review、limitations 和 next step。每个 change point 必须用 plain language 说明 what changed、why changed、how it works，再指向实现位置。这是 Feynman-style handoff：reviewer 不需要先读完整 diff，也应能理解变更、设计选择和验证方式。请求人工审查时，不要使用 bare files-changed list 作为主交接。
 
 不要声称未实际运行的命令通过。

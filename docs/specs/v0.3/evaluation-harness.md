@@ -2,7 +2,7 @@
 
 ## Scope classification 分类
 
-`later release`，对应 `docs/roadmap.md` 中 `v0.3 Evaluation Harness`。本 spec 是 implementation 前规划，不开始产品代码实现。
+`later release`，对应 `docs/roadmap.md` 中 `v0.3 Evaluation Harness`。本 spec 最初用于 implementation 前对齐；在 v0.3 开发获批后，它继续作为 eval harness 的持续契约。真实运行证据由 `docs/checklists/v0.3-readiness-gap-list.md` 和 `.agent-harness/evals/<run>/` reports 维护。
 
 P0 scope：
 
@@ -42,7 +42,7 @@ Explicit non-goals：
 bun run eval -- --suite v0.3 --out .agent-harness/evals/latest
 ```
 
-命令名是建议，不是本轮已实现事实。
+当前 v0.3 实现采用该命令形态；后续如调整命令名或输出目录契约，必须同步更新本 spec、README、CHANGELOG 和 readiness checklist。
 
 ## 内部设计
 
@@ -278,10 +278,14 @@ Peer baseline：
 
 - `docs/agent/evaluation-strategy.md`
 - `docs/engineering/testing-strategy.md`
+- `docs/research/v0.3/evaluation-harness.md`
+- `docs/research/v0.3/evaluation-harness-technical-report.html`
 - `docs/checklists/v0.3-readiness-gap-list.md`
 - `docs/specs/v0.3/eval-report-privacy.md`
 - future `docs/releases/v0.3.0.md`
 - README / CHANGELOG，如公开命令或 workflow 变化
+
+注意：`docs/research/v0.3/evaluation-harness-technical-report.html` 是技术调研报告，用于说明调研、选型和 story 拆分；eval runner 生成的 `report.html` 是运行结果报告，用于 release evidence。两者都可以是 self-contained HTML，但不能混用验收语义。
 
 ## 验收标准
 

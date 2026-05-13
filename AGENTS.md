@@ -125,6 +125,14 @@ bun run quality
 
 ## 代码变更最终汇报格式
 
+完成 release work、Ralph loop、跨多文件实现，或用户明确要求 HTML 汇报时，必须额外产出 self-contained HTML 变更汇报。默认路径：
+
+```txt
+.agent-harness/reports/latest/change-report.html
+```
+
+该 HTML report 是本地审查 artifact，不替代下面的 chat final report。最终回复必须给出 HTML report 路径，并继续提供简短 Review focus 和真实 quality gate 结果。
+
 ```md
 ## Completed
 

@@ -40,6 +40,25 @@ docs/research/<release>/<topic>.md
 
 Release work 必须包含 `Industry scan`。该段必须列出本次 release 决策检查过的主流产品或项目。至少从 OpenAI Codex、Claude Code 和 opencode 开始，并按 release 相关性补充 Aider、OpenHands、OpenClaw、Hermes Agent 等 peers。每个 source 都要记录对本项目的 decision signal，而不只是放一个链接。
 
+## 自包含 HTML 技术调研报告（可选）
+
+当用户明确要求 HTML 汇报，或 release research 需要给审查者一个可浏览的技术选择视图时，可以在 Markdown research note 之外补充自包含 HTML 报告。
+
+路径约定：
+
+```txt
+docs/research/<release>/<topic>-technical-report.html
+```
+
+要求：
+
+- HTML 技术调研报告不替代 `docs/research/<release>/<topic>.md`；Markdown research note 仍是可 diff、可模板化的主记录。
+- 报告必须明确自己是技术调研产物，不是 eval 运行、benchmark 结果或产品 UI。
+- 默认自包含静态 HTML，不依赖运行时外部 CSS、JS、image 或 hosted service；来源链接可以作为引用保留。
+- 每个外部信号必须映射到当前 release scope，不能写成 feature wishlist。
+- 不得声称未运行的 E2E、benchmark、browser smoke 或 quality gate 已通过。
+- 如果技术报告影响 implementation stories、benchmark metrics 或 acceptance criteria，必须同步更新 spec、release contract 或 readiness checklist。
+
 ## Spec 模板
 
 路径：

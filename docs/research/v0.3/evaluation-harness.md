@@ -12,6 +12,12 @@ v0.3 的调研目标不是寻找最多功能的 agent 平台，而是回答哪�
 
 `docs/roadmap.md` 将 v0.3 定义为 `Evaluation Harness`，核心问题是 “behavior regressions 能否被度量？”。本 research 直接约束 `docs/specs/v0.3/evaluation-harness.md` 和 `docs/releases/v0.3.0-contract.md`，并明确不把外部平台能力扩展为 v0.3 wishlist。
 
+## 自包含 HTML 技术调研报告
+
+本 research 另有面向审查的技术调研报告：`docs/research/v0.3/evaluation-harness-technical-report.html`。
+
+该 HTML 文件用于展示 v0.3 的竞品调研、技术选型、scope 映射和 story 拆分，不是 eval runner 生成的运行结果报告。eval 运行证据仍由 `bun run eval -- --suite v0.3 --out .agent-harness/evals/latest` 生成的 JSON、Markdown 和 HTML reports 承担。
+
 ## 已检查来源
 
 | 项目         | 来源类型                    | URL                                                                               | v0.3 decision signal                                                                                                       |
@@ -158,7 +164,7 @@ Hermes Agent 强调 long-running gateway、skills、memory、subagents、termina
 - safety 必须通过代码和 tests enforce，不能只靠 prompt。
 - release docs、research、spec、checklist 使用中文正文。
 - 未运行的 E2E、benchmark 或 quality gate 必须标为未运行。
-- v0.3 不改变产品运行时代码，直到 implementation 明确批准。
+- implementation 明确批准前，v0.3 不改变产品运行时代码；批准后，开发必须继续遵守本 research 和 spec 边界。
 
 ## 建议
 
@@ -179,11 +185,14 @@ v0.3 采用 deterministic local Evaluation Harness：
 - testing strategy 后续实现时需要新增 Eval Harness 层级，位于 smoke 和 benchmark release evidence 之间。
 - release note 后续必须报告本地 eval 真实结果，不能把 planned benchmark 写成 pass。
 
-## 未决问题
+## 已关闭的设计问题
 
-- eval command 命名使用 `bun run eval`、`bun run eval:v0.3` 还是独立 `scripts/evaluate.ts`？
-- JSON report schema 是否在 v0.3 立即公开为稳定 contract，还是标记为 internal v1？
-- Markdown report 是否写入 `.agent-harness/evals/<runId>/report.md`，还是允许 `--out` 指定？
-- HTML report 是否默认生成，还是只在 `--format html` / `--html` 明确请求时生成？
-- HTML report 需要哪一级浏览器验证：只检查 `<!doctype html>` 和核心内容，还是用 browser smoke 验证移动宽度与交互控件？
-- 是否在 v0.3 结束时把 eval 命令接入 `bun run quality`，还是先作为 release readiness gate 单独运行？
+| 问题                        | 当前决定                                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------------------------- |
+| eval command 命名           | 使用 `bun run eval -- --suite v0.3 --out .agent-harness/evals/latest`。                            |
+| JSON report schema          | 使用 `eval-report.v1` 作为当前机器契约；后续变更需要显式迁移。                                     |
+| Markdown / HTML report path | 由 `--out` 指定输出目录，默认写入同一 run 目录下的 `report.md` 和 `report.html`。                  |
+| HTML report 生成策略        | v0.3 默认生成 JSON、Markdown 和 self-contained HTML 三种 report。                                  |
+| HTML report 验证级别        | release readiness 需要 browser smoke：非空、窄 viewport、status filter 和 expand/collapse 可用。   |
+| 是否接入 `bun run quality`  | v0.3 eval 暂作为单独 release-readiness gate 运行；`bun run quality` 继续覆盖 format/lint/test 等。 |
+| HTML 技术调研报告是否是产物 | 否。`evaluation-harness-technical-report.html` 是 research 产物，不是 eval 运行产物。              |

@@ -1,59 +1,66 @@
 {
   "project": "code-agent-harness",
-  "branchName": "ralph/v0.1-blockers",
-  "description": "Close the remaining v0.1 readiness blockers with focused implementation, test evidence, checklist updates, and quality gates.",
+  "branchName": "ralph/v0.3-evaluation-harness",
+  "description": "Finish v0.3.0 Evaluation Harness with Ralph iterations: align accepted technical research, complete release documentation, and verify release-readiness evidence without expanding scope beyond deterministic local eval.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add trace redaction evidence",
-      "description": "As a release owner, I need direct tests proving JSONL traces redact secret-like values so S-09 can be closed with evidence.",
+      "title": "Align v0.3 research, spec, and workflow docs",
+      "description": "As a release owner, I need the accepted v0.3 technical research report linked into the canonical research/spec/checklist workflow so implementation decisions remain reviewable.",
       "acceptanceCriteria": [
-        "Inspect packages/core/src/event-logger.ts before editing",
-        "Add focused event logger tests that prove secret and API-key-like fields are redacted in trace JSONL",
-        "Tests preserve evidence that non-secret trace fields remain readable",
-        "Update docs/checklists/v0.1-readiness-gap-list.md and docs/checklists/release-checklist.md for S-09 only after tests pass",
+        "Inspect docs/research/v0.3/evaluation-harness.md, docs/specs/v0.3/evaluation-harness.md, docs/releases/v0.3.0-contract.md, docs/checklists/v0.3-readiness-gap-list.md, and docs/engineering/research-and-spec-process.md before editing",
+        "Link docs/research/v0.3/evaluation-harness-technical-report.html from canonical v0.3 planning docs",
+        "Clearly distinguish the technical research HTML report from eval runner generated report.html artifacts",
+        "Close now-decided v0.3 research questions with decisions that match current implementation",
+        "Update research/spec templates or workflow docs only if the pattern is reusable for future releases",
         "Typecheck passes",
+        "bun run audit:language passes",
         "bun run quality passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Smallest remaining evidence blocker. Do not add persistent memory, MCP, product subagents, or background task mode."
+      "notes": "Completed by linking the accepted technical research HTML into v0.3 research/spec/checklist/workflow docs, closing implementation-aligned design questions, and preserving the distinction between technical research HTML and eval-generated report.html."
     },
     {
       "id": "US-002",
-      "title": "Add truncation behavior evidence",
-      "description": "As a release owner, I need direct tests for bounded tool output and truncation metadata so S-07 can be closed with evidence.",
+      "title": "Write v0.3.0 release note",
+      "description": "As a release reviewer, I need a complete v0.3.0 release note that explains what shipped, why, how it was validated, and what remains out of scope.",
       "acceptanceCriteria": [
-        "Inspect packages/tools/src/read-tools.ts and packages/tools/src/command-tool.ts before editing",
-        "Add focused tests for read_file maxBytes truncation metadata",
-        "Add focused tests for list_files maxResults truncation metadata",
-        "Add focused tests for search_repo result-limit truncation metadata",
-        "Add focused tests for run_command maxOutputBytes truncation metadata",
-        "Update directly affected docs/checklists for S-07 only after tests pass",
+        "Inspect docs/engineering/release-documentation-standard.md and docs/templates/release-note-template.md before editing",
+        "Create docs/releases/v0.3.0.md using Chinese prose and preserving code identifiers, commands, paths, APIs, and project names",
+        "Include feature acceptance cards for fixed task eval, trace scoring, JSON/Markdown/HTML reports, report privacy, and release log HTML data",
+        "Include a Mermaid change or release-flow diagram",
+        "List key code definitions with real paths and exported symbols",
+        "Include industry comparison mapped to v0.3 scope using the existing v0.3 research sources",
+        "Record E2E acceptance and benchmark evidence only for commands actually run",
+        "Document non-goals and known limitations without expanding v0.3 scope",
         "Typecheck passes",
+        "bun run audit:language passes",
         "bun run quality passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Keep this evidence-focused unless tests expose a real implementation gap."
+      "notes": "Completed by creating docs/releases/v0.3.0.md with feature acceptance cards, Mermaid flow, code index, industry comparison, E2E, benchmark, quality evidence, non-goals, and limitations."
     },
     {
       "id": "US-003",
-      "title": "Implement user abort stop",
-      "description": "As a CLI user, I need aborting a running task to stop further provider/tool work so F-14 is satisfied.",
+      "title": "Finalize v0.3 release readiness evidence",
+      "description": "As a maintainer, I need the readiness checklist and Ralph progress to reflect the actual eval, quality, benchmark, and remaining limitation evidence before v0.3 is considered complete.",
       "acceptanceCriteria": [
-        "Inspect packages/core/src/agent-loop.ts, packages/core/src/types.ts, and apps/cli/src/App.tsx before editing",
-        "Core run state represents an aborted run distinctly from completed and failed runs",
-        "AbortSignal stops further provider and tool work after user abort",
-        "CLI exposes an abort interaction without moving tool execution into the TUI",
-        "Add focused core and CLI-adjacent tests for abort behavior where the repo test stack supports them",
-        "Update directly affected docs/checklists for F-14 only after tests pass",
+        "Run bun run eval -- --suite v0.3 --out .agent-harness/evals/latest and record the real result",
+        "Run bun run audit:language and record the real result",
+        "Run bun run quality and record the real result",
+        "Run a browser or browser-equivalent HTML smoke only if the environment supports it; otherwise record it as not rerun rather than pass",
+        "Update docs/checklists/v0.3-readiness-gap-list.md with the final verified evidence",
+        "Update docs/releases/v0.3.0.md if quality, E2E, or benchmark evidence changed",
+        "Append a Ralph progress entry that names changed files and checks run",
         "Typecheck passes",
+        "bun run audit:language passes",
         "bun run quality passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "Largest remaining blocker. Stay inside v0.1 scope and do not add background task mode."
+      "notes": "Completed with eval, audit:language, quality, and Playwright HTML browser smoke evidence. No stage, commit, push, tag, publish, or PR was performed."
     }
   ]
 }

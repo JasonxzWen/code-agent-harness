@@ -56,6 +56,8 @@ apply_patch: ask
 
 `v0.3.0` 新增本地 deterministic eval 入口，用固定任务、JSONL trace、确定性检查和本地 JSON / Markdown / HTML reports 度量既有行为是否回归。
 
+发布说明：`docs/releases/v0.3.0.md`
+
 ## 快速开始
 
 ```bash

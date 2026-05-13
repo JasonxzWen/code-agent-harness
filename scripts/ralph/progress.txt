@@ -10,12 +10,16 @@ Started: 2026-05-11T13:16:34+08:00
 - Trace redaction evidence should exercise `createJsonlEventLogger` so tests cover serialized JSONL output, not only helper functions.
 - Tool output truncation evidence should assert machine-readable limit and size/count fields, not only `truncated: true`.
 - Run cancellation belongs in core through `AbortSignal`; the CLI may create and abort the controller, but provider/tool execution must remain in core/tools.
+- v0.3 release work stays local and deterministic: fixed eval tasks, JSONL trace scoring, JSON/Markdown/HTML reports, report privacy, and release evidence. Do not add leaderboard, hosted service, LLM judge, context engineering, memory, delegation, sandbox, or MCP.
+- v0.3 eval is a separate release-readiness gate: run `bun run eval -- --suite v0.3 --out .agent-harness/evals/latest` and record actual results; `bun run quality` remains format/lint/typecheck/build/test/smoke.
+- `docs/research/v0.3/evaluation-harness-technical-report.html` is a technical research artifact, not the eval runner generated `.agent-harness/evals/<run>/report.html`.
 
 ## Current Status
 
-- Branch: `ralph/v0.1-blockers`.
-- S-02 symlink escape evidence is already implemented in the working tree and `bun run quality` passed with 20 tests before Ralph setup.
-- Local policy blocked `git commit` from this Codex session. Ralph iterations must not bypass that policy; if commit remains unavailable, leave verified changes uncommitted and document it here.
+- Branch: `ralph/v0.3-evaluation-harness`.
+- Baseline before the v0.3 Ralph run already contains uncommitted docs changes from the accepted v0.3 research follow-up. Treat them as baseline context; do not revert them.
+- v0.3 product code is already present on `main` via PR #9. Ralph should complete release documentation, readiness evidence, and verification without reimplementing the eval runner.
+- Local policy for this user remains: do not commit, push, tag, publish, or open a PR unless explicitly asked.
 ---
 ## 2026-05-11T13:21:42+08:00 - US-001
 - What was implemented
@@ -90,4 +94,83 @@ Started: 2026-05-11T13:16:34+08:00
   - Reusable patterns discovered: run cancellation should be represented as `status: "aborted"` rather than as a failed run.
   - Gotchas encountered: CLI abort should resolve any pending permission prompt before clearing UI state so an abandoned permission promise does not linger.
   - Useful codebase context: baseline worktree was already dirty before US-003, so story changes were left uncommitted per Ralph policy.
+---
+## 2026-05-13T17:45:00+08:00 - US-001
+- What was implemented
+  - Linked the accepted v0.3 technical research HTML report into the canonical research, spec, release contract, and readiness checklist flow.
+  - Added reusable process/template guidance for optional self-contained HTML technical research reports.
+  - Closed v0.3 research design questions with implementation-matching decisions.
+- Files changed
+  - `docs/research/v0.3/evaluation-harness.md`
+  - `docs/specs/v0.3/evaluation-harness.md`
+  - `docs/releases/v0.3.0-contract.md`
+  - `docs/checklists/v0.3-readiness-gap-list.md`
+  - `docs/engineering/research-and-spec-process.md`
+  - `docs/templates/research-note-template.md`
+  - `docs/templates/spec-template.md`
+  - `docs/research/v0.3/evaluation-harness-technical-report.html`
+- Checks run
+  - `bun run format:check` passed before Ralph completion.
+  - `bun run audit:language` passed before Ralph completion.
+  - `bun run quality` passed before Ralph completion.
+- Learnings for future iterations:
+  - Reusable patterns discovered: technical research HTML must be explicitly separated from eval-generated HTML reports because both are self-contained but serve different review jobs.
+  - Gotchas encountered: Ralph timed out while a child `codex exec` process continued running, so the orphan process was stopped before manual continuation.
+  - Useful codebase context: baseline worktree was dirty before US-001, so changes remain uncommitted per policy.
+---
+## 2026-05-13T17:48:00+08:00 - US-002
+- What was implemented
+  - Created `docs/releases/v0.3.0.md` as the formal v0.3.0 release note.
+  - Added feature acceptance cards for fixed task eval, trace scoring, JSON/Markdown/HTML reports, report privacy, and release log HTML data.
+  - Added Mermaid flow, key code index, industry comparison, E2E acceptance, benchmark evidence, quality evidence, known limitations, and release checklist.
+- Files changed
+  - `docs/releases/v0.3.0.md`
+  - `scripts/ralph/prd.json`
+  - `scripts/ralph/progress.txt`
+- Checks run
+  - Final checks are recorded in US-003.
+- Learnings for future iterations:
+  - Reusable patterns discovered: release notes should consume the same benchmark metrics and limitations used by the eval report instead of inventing separate release metrics.
+  - Gotchas encountered: release note evidence must not claim live provider or peer benchmark execution.
+  - Useful codebase context: v0.3 release note can point to `scripts/eval-harness.ts` for all eval runner contracts because implementation is script-local.
+---
+## 2026-05-13T17:52:00+08:00 - US-003
+- What was implemented
+  - Re-ran v0.3 eval and release quality gates.
+  - Ran Playwright browser smoke against `.agent-harness/evals/latest/report.html`, verifying narrow viewport, status filter, expand/collapse, and 0 console errors.
+  - Updated readiness and release evidence to reflect the final verified browser smoke.
+- Files changed
+  - `docs/checklists/v0.3-readiness-gap-list.md`
+  - `docs/releases/v0.3.0.md`
+  - `scripts/ralph/prd.json`
+  - `scripts/ralph/progress.txt`
+- Checks run
+  - `bun run eval -- --suite v0.3 --out .agent-harness/evals/latest` passed: 4/4 tasks.
+  - `bun run audit:language` passed.
+  - `bun run quality` passed.
+  - Playwright HTML browser smoke passed with 0 console errors.
+- Learnings for future iterations:
+  - Reusable patterns discovered: `bunx playwright screenshot` can prove the local file opens, while a small Playwright script can verify controls and console errors without adding a project dependency.
+  - Gotchas encountered: `bunx` does not make `@playwright/test` importable from arbitrary repo test files; use the resolved bunx package `node_modules` path for one-off browser smoke when avoiding dependency changes.
+  - Useful codebase context: no commit was made because this run intentionally preserves uncommitted Ralph changes for user review.
+---
+## 2026-05-13T18:05:00+08:00 - post-US-003 standard update
+- What was implemented
+  - Added the project standard requiring self-contained HTML change reports after release work, Ralph loops, multi-file implementations, or user-requested HTML handoffs.
+  - Generated the current handoff report at `.agent-harness/reports/latest/change-report.html`.
+- Files changed
+  - `docs/engineering/standards.md`
+  - `docs/checklists/development-checklist.md`
+  - `AGENTS.md`
+  - `.agents/skills/implementation-quality/SKILL.md`
+  - `.agents/skills/release-readiness/SKILL.md`
+  - `docs/checklists/v0.3-readiness-gap-list.md`
+  - `docs/releases/v0.3.0.md`
+  - `.agent-harness/reports/latest/change-report.html`
+- Checks run
+  - Final checks are reported in the current handoff.
+- Learnings for future iterations:
+  - Reusable patterns discovered: final chat reports stay concise, but complex release/Ralph work should also leave a browser-reviewable local HTML artifact.
+  - Gotchas encountered: HTML handoff reports should stay local under `.agent-harness` by default so they do not become release docs or PR descriptions accidentally.
+  - Useful codebase context: this standard closes the gap between v0.3 HTML eval artifacts and human review handoffs.
 ---
