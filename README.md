@@ -52,6 +52,10 @@ apply_patch: ask
 
 `v0.2.1` 只迁移仓库文档和流程契约，目标是让 release docs、research、spec、ADR、engineering standards、checklists、agent docs、templates、skills、README、CHANGELOG 和 `AGENTS.md` 默认使用中文正文。当前全仓 Markdown 文档已完成中文优先迁移；代码标识符、命令、路径、包名、API 名称、外部项目名和引用标题保留原文。
 
+当前实现目标：`v0.3.0 Evaluation Harness`
+
+`v0.3.0` 新增本地 deterministic eval 入口，用固定任务、JSONL trace、确定性检查和本地 JSON / Markdown / HTML reports 度量既有行为是否回归。
+
 ## 快速开始
 
 ```bash
@@ -73,6 +77,24 @@ bun dist/agent-harness.js --repo fixtures/tiny-ts-repo --task "Explain this repo
 ```txt
 Explain this repository structure and identify the main modules.
 ```
+
+运行 v0.3 本地评估并生成 HTML 汇报：
+
+```bash
+bun run eval -- --suite v0.3 --out .agent-harness/evals/latest
+```
+
+输出文件：
+
+```txt
+.agent-harness/evals/latest/report.json
+.agent-harness/evals/latest/report.md
+.agent-harness/evals/latest/report.html
+```
+
+HTML 汇报内容包含 eval 结果和从 `CHANGELOG.md` 解析出的 release log 数据，可直接查看 release timeline、section 和条目。
+
+报告隐私规范：eval reports 只能显示 repo-relative path 或 `[external-output]/...`，严禁输出本机绝对路径、用户主目录、系统用户名或 token-looking secret。
 
 ## 架构
 
@@ -114,6 +136,7 @@ bun run format:check
 bun run lint
 bun run typecheck
 bun run build
+bun run eval -- --suite v0.3 --out .agent-harness/evals/latest
 bun run test
 bun run smoke
 bun run quality
@@ -127,7 +150,7 @@ packages/core         agent loop, config, events, and public runtime contracts
 packages/tools        read tools, apply_patch, validation, and safety policy
 packages/providers    provider adapters and normalized provider boundary
 fixtures/tiny-ts-repo deterministic smoke-test repository
-scripts               smoke and live smoke entrypoints
+scripts               smoke, live smoke, and eval entrypoints
 ```
 
 ## 当前限制

@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "audit:language": "bun run scripts/audit-language.ts",
     "build": "bun build apps/cli/src/main.tsx --target=bun --packages=external --outfile=dist/agent-harness.js",
+    "eval": "bun run scripts/eval.ts",
     "test": "bun test",
     "smoke": "bun run scripts/smoke.ts",
     "smoke:live": "bun run scripts/smoke-live.ts",
