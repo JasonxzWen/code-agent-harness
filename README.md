@@ -1,62 +1,62 @@
-# Code Agent Harness
+# TypeScript Coding Agent Runtime Research Harness
 
-面向真实仓库的 release-driven TypeScript coding agent harness。
+`code-agent-harness` 是一个用 **learning-by-building** 方式研究现代 coding agent runtime 的 TypeScript harness。
 
-`code-agent-harness` 是一个 terminal-first 开发者工具，用明确的运行时契约来构建和演进 coding agent：agent loop、tool calling、安全仓库检查、权限、上下文管理、trace logging 和 evaluation readiness。
+它 focused on understanding Claude Code / Codex-like runtime mechanisms：通过亲手实现 scoped instructions、memory、subagents、orchestration、skills、hooks、permissions、trace 和 eval 等机制，理解这类工具的 public behavior、设计取舍和可验证边界。
+
+它面向真实仓库和 terminal-first workflow，但定位是研究型工程项目，不是要复制任何一个商业产品的内部实现。
 
 ## 它是什么
 
-- 本地 coding agent harness；
-- terminal-first 开发者工具；
-- TypeScript agent runtime；
-- 带 schema 校验的 tool-calling 系统；
-- permission-aware 仓库检查工作流；
-- release-driven 工程项目。
+- TypeScript Coding Agent Runtime Research Harness；
+- learning-by-building 的研究项目；
+- 面向真实仓库的 terminal-first coding agent runtime 实验场；
+- 用确定性测试、trace 和 eval reports 观察 agent 行为；
+- 用 release-driven 方式逐步研究现代 coding agent 的公开行为和设计推断。
 
 ## 它不是什么
 
-- 不是 chatbot wrapper；
-- 不是 demo website；
-- 不是 general assistant；
+- 不是 Claude Code clone；
+- 不是 Codex clone；
 - 不是 Devin clone；
-- 不是 auto-commit 或 auto-PR bot；
-- 当前写入能力只限 `v0.2.0` 的受控 `apply_patch` workflow。
+- 不是 production IDE agent；
+- 不是 benchmark suite；
+- 不是 demo website；
+- 不是 auto-commit 或 auto-PR bot。
 
-## 当前 release
+## 当前已实现能力
 
-当前已交付基线：`v0.2.0 Patch-capable Agent`
+| Release    | 已实现范围                                              | 说明                                                                                                                               |
+| ---------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| v0.1       | Minimal Agent Loop / read tools / trace                 | 支持最小 agent loop、安全仓库读取工具、tool validation、permission gate 和 JSONL event trace。                                     |
+| v0.2       | controlled `apply_patch` / permission preview           | 新增受控写入工具，默认 `ask`，写入前展示 diff preview 并要求显式批准；不会自动 stage、commit 或 push。                             |
+| v0.3       | deterministic eval harness / JSON Markdown HTML reports | 新增本地 deterministic eval 入口，运行 fixed task matrix，解析 JSONL trace，并输出 JSON / Markdown / self-contained HTML reports。 |
+| Unreleased | `html-work-reports` skill and handoff rules             | 新增本地 HTML handoff report 生成和校验规则，用于实现、review 和 release 交接，不新增 runtime 能力。                               |
 
-```txt
-用户任务
--> Agent Loop
--> Tool Calling
--> Safe Repo Read
--> Patch Preview
--> Explicit Approval
--> Apply Patch
--> Grounded Final Response
--> JSONL Trace
-```
+当前还没有实现 persistent memory、product-level subagents、team orchestration、skills runtime、hooks runtime、MCP integration 或 sandbox isolation。
 
-`v0.2.0` 新增一个受控写入工具：
+## Research Focus
 
-```txt
-apply_patch: ask
-```
+- scoped instructions and memory；
+- subagents and context isolation；
+- orchestration with task lists and mailboxes；
+- skills and progressive disclosure；
+- lifecycle hooks；
+- permission modes and sandbox-lite；
+- trace and eval。
 
-`apply_patch` 会预检 unified diff、拒绝 deterministic policy failures、在批准前展示 preview、写入前再次校验，并且只写工作区。它不会 stage、commit、push，不会新增 sandbox，也不会放宽 `run_command`。
+## Current Mismatch Fixed In v0.3.1
 
-## 正在规划
+`v0.3.1 Research Harness Alignment` 只修正项目定位、路线图、研究文档入口和 release 叙述。
 
-当前文档迁移目标：`v0.2.1 Chinese-first Repository Migration`
+本版本同步以下事实：
 
-`v0.2.1` 只迁移仓库文档和流程契约，目标是让 release docs、research、spec、ADR、engineering standards、checklists、agent docs、templates、skills、README、CHANGELOG 和 `AGENTS.md` 默认使用中文正文。当前全仓 Markdown 文档已完成中文优先迁移；代码标识符、命令、路径、包名、API 名称、外部项目名和引用标题保留原文。
+- `package.json` 当前版本仍是 `0.3.0`；
+- 当前已发布基线是 `v0.3.0 Evaluation Harness`；
+- README、roadmap、AGENTS 和项目章程不应继续把 `v0.2.0` 写成当前基线，或把 `v0.3.0` 写成当前实现目标；
+- 后续路线从“泛化产品化能力”调整为“通过构建 runtime 机制来研究 Claude Code / Codex-like public behavior”。
 
-当前实现目标：`v0.3.0 Evaluation Harness`
-
-`v0.3.0` 新增本地 deterministic eval 入口，用固定任务、JSONL trace、确定性检查和本地 JSON / Markdown / HTML reports 度量既有行为是否回归。
-
-发布说明：`docs/releases/v0.3.0.md`
+`v0.3.1` 不修改 runtime 代码，不新增 memory、subagents、orchestration、skills runtime、hooks runtime 或 permission modes。
 
 ## 快速开始
 
@@ -72,12 +72,6 @@ TUI 运行中可按 `q` 或 `Ctrl+C` 中止 run。
 
 ```bash
 bun dist/agent-harness.js --repo fixtures/tiny-ts-repo --task "Explain this repository structure and identify the main modules."
-```
-
-示例任务：
-
-```txt
-Explain this repository structure and identify the main modules.
 ```
 
 运行 v0.3 本地评估并生成 HTML 汇报：
@@ -153,11 +147,13 @@ packages/tools        read tools, apply_patch, validation, and safety policy
 packages/providers    provider adapters and normalized provider boundary
 fixtures/tiny-ts-repo deterministic smoke-test repository
 scripts               smoke, live smoke, and eval entrypoints
+docs                  research, specs, release docs, roadmap, engineering notes
+.agents/skills        repeatable Codex workflows and handoff helpers
 ```
 
 ## 当前限制
 
-`v0.2.0` patch support 故意保持窄范围。它不做：
+当前 runtime 故意保持窄范围。它不做：
 
 - auto-stage、auto-commit、auto-push 或创建 PR；
 - 应用 binary、mode、symlink、rename 或 copy patches；
@@ -165,6 +161,9 @@ scripts               smoke, live smoke, and eval entrypoints
 - 自动解决 merge conflicts；
 - persistent memory；
 - product-level subagents；
+- multi-agent orchestration；
+- skills runtime；
+- lifecycle hooks runtime；
 - MCP integration；
 - sandbox isolation。
 
