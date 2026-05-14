@@ -10,7 +10,9 @@
 
 ## 项目
 
-`code-agent-harness` 是面向真实仓库的 release-driven TypeScript coding agent harness。
+`code-agent-harness` 是 TypeScript Coding Agent Runtime Research Harness。
+
+它用 learning-by-building 的方式研究现代 coding agent 的 scoped instructions、memory、subagents、orchestration、skills、hooks、permissions、trace 和 eval，重点理解 Claude Code / Codex-like runtime mechanisms 的 public behavior 和 design inference。
 
 它聚焦：
 
@@ -21,25 +23,30 @@
 - context management；
 - event traces；
 - evaluation readiness；
+- scoped instructions 和 memory research；
+- subagent、orchestration、skills、hooks 和 permission modes 的最小可验证实现；
 - terminal-first 开发者体验。
 
 ## 当前 release
 
-当前已交付基线：`v0.2.0 Patch-capable Agent`。
+当前已交付基线：`v0.3.0 Evaluation Harness`。
 
-当前迁移目标：`v0.2.1 Chinese-first Repository Migration`。
+当前 release focus：`v0.3.1 Research Harness Alignment`。
 
-`v0.2.1` 是文档和流程 release，不改变产品运行时代码。
+`v0.3.1` 是文档和流程 alignment release，只修正项目定位、路线图、研究文档入口和 release 叙述，不改变产品运行时代码。
 
 ## 非目标
 
-当前迁移不要实现：
+当前 release 不要实现：
 
-- UI、provider、patch tool、MCP、sandbox、subagents、IDE extension；
-- 产品功能代码变更；
+- runtime 代码变更；
+- UI、provider、MCP、sandbox、subagents、IDE extension；
+- memory、orchestration、skills runtime、hooks runtime 或 permission modes；
+- demo website 或 production IDE agent；
 - 自动翻译流水线；
 - 多语言站点；
-- 自动 tag、publish、commit、push 或 PR。
+- 自动 tag、publish、commit、push 或 PR；
+- Claude Code、Codex 或其他闭源产品的内部实现描述。
 
 ## 技术栈
 
@@ -79,29 +86,36 @@ scripts               smoke and developer scripts
 - public behavior 改变时更新 docs。
 - 新增或重写文档正文默认中文，技术标识保留原文。
 - 核心源码注释默认使用中文和 UTF-8，解释 what、why、how，帮助新手理解核心逻辑。
+- 研究同类 coding agent 时，只写 public behavior、公开文档和可观察交互，不推断或声称闭源内部实现。
 
 ## 开发流程
 
-初始 agent loop scaffold 之后的功能工作遵循：
+后续 runtime 机制实现遵循：
 
 ```txt
-research -> spec -> alignment brief -> implementation -> quality gates -> self-review -> final report
+research -> spec -> implementation -> tests -> eval evidence -> HTML handoff report
 ```
 
-对 v0.1 blockers，不要在相关 `docs/specs/v0.1/` spec 存在且 acceptance criteria 明确前开始实现。
+当前 `v0.3.1` 只做文档 alignment；不开始 runtime implementation。
 
 ## Release 文档
 
 每个 release 都必须有用户可读文档，并说明：
 
-- 每个 feature 是什么、用户需求、主场景、同类产品行为、本项目方案、为什么适合、如何实现、E2E acceptance、benchmark evidence 和 limitations；
+- research question；
+- public product behavior being studied；
+- minimal implementation target；
+- non-goals；
+- evidence to collect；
+- interview value；
+- 每个 feature 是什么、用户需求、主场景、本项目方案、为什么适合、如何实现、E2E acceptance、benchmark evidence 和 limitations；
 - 关键逻辑和代码定义位置；
 - 展示 release flow 或 change boundary 的 Mermaid 图；
 - 为什么选择当前实现；
-- Claude Code、Codex、opencode、OpenClaw、Hermes Agent 等同类项目如何处理同类问题；
+- Claude Code、Codex、opencode、OpenClaw、Hermes Agent 等同类项目的公开行为或公开文档如何呈现同类问题；
 - 本项目为什么选择当前 release-scoped approach。
 
-release 实现开始前，至少刷新 Codex、Claude Code、opencode 以及 release-relevant peers 的 comparable-project research。research 必须映射到本 release scope，不能因为模仿外部项目而扩大范围。
+release 实现开始前，至少刷新 Codex、Claude Code、opencode 以及 release-relevant peers 的 comparable-project research。research 必须映射到本 release scope，不能因为模仿外部项目而扩大范围，也不能写闭源产品内部实现。
 
 用户可见 release feature 不能只靠 unit tests 发布。必须补充从 user-level entrypoint 到 final answer、artifact、trace 或 worktree evidence 的 E2E acceptance evidence。每个 release feature 还必须定义 benchmark questions、metrics、fixtures、commands 或 artifacts、thresholds、results、peer baselines 和 caveats。
 
@@ -121,7 +135,7 @@ bun run smoke
 bun run quality
 ```
 
-不要声称未运行的命令通过。
+不要声称未运行的命令通过。文档-only alignment 若用户指定较窄 gate，按用户指定运行，并在最终汇报中明确未运行的 gate。
 
 ## 代码变更最终汇报格式
 

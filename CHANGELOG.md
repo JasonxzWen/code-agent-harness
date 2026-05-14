@@ -7,10 +7,14 @@
 ### 新增
 
 - 新增项目本地 `html-work-reports` skill，包含自包含 HTML 工作汇报的生成器、校验器、模板、静态组件和结构化输入 schema。
+- 新增 `v0.3.1 Research Harness Alignment` 叙述，明确本项目是 TypeScript Coding Agent Runtime Research Harness，用 learning-by-building 研究 Claude Code / Codex-like runtime mechanisms 的 public behavior 和 design inference。
 
 ### 变更
 
 - 强化开发完成 HTML 变更汇报规范：默认使用生成器和 validator，要求 source-linked code evidence，并明确 browser smoke 降级不能写成通过。
+- 同步 README、roadmap、AGENTS 和项目章程的当前定位：已交付基线是 `v0.3.0 Evaluation Harness`，`v0.3.1` 只做文档 alignment，不新增 runtime 能力。
+- 重写路线图为 research-oriented release path：`v0.4 Scoped Instruction & Memory`、`v0.5 Subagent Runtime`、`v0.6 Agent Team Orchestration MVP`、`v0.7 Skills & Progressive Disclosure`、`v0.8 Hooks & Lifecycle Automation`、`v0.9 Permission Modes & Sandbox-lite` 和 `v1.0 Comparative Runtime Report`。
+- 明确未来 memory、subagents、orchestration、skills runtime、hooks runtime、permission modes 和 sandbox-lite 仍是后续研究目标，当前未实现。
 
 ## [0.3.0] - 2026-05-13
 
