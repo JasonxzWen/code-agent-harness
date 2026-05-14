@@ -127,6 +127,23 @@ function validateStatic(html) {
     );
     add(
       checks,
+      "code-token-styles",
+      html.includes(".code-panel .hljs-keyword") &&
+        html.includes(".code-panel .hljs-string") &&
+        html.includes(".code-panel .hljs-comment"),
+      "code section lacks persistent token color styles",
+      issues
+    );
+    add(
+      checks,
+      "code-compact-line-height",
+      html.includes('13px/1.32 "SFMono-Regular"') &&
+        html.includes("line-height: 1.32;"),
+      "code section lacks compact line-height styling",
+      issues
+    );
+    add(
+      checks,
       "code-paths-inert",
       html.includes("data-file-path="),
       "code section lacks inert file path label",

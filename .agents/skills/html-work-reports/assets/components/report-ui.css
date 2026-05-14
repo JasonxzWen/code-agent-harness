@@ -248,7 +248,7 @@ a:focus-visible {
   margin: 0;
   padding: 12px;
   font:
-    13px/1.55 "SFMono-Regular",
+    13px/1.32 "SFMono-Regular",
     Consolas,
     "Liberation Mono",
     monospace;
@@ -260,6 +260,8 @@ a:focus-visible {
   margin-inline: -12px;
   padding-inline: 58px 12px;
   position: relative;
+  line-height: 1.32;
+  white-space: pre;
 }
 
 .code-line::before,
@@ -275,7 +277,37 @@ a:focus-visible {
 }
 
 .line-hot {
-  background: rgba(37, 99, 235, 0.22);
+  background: rgba(59, 130, 246, 0.28);
+  box-shadow: inset 3px 0 0 #60a5fa;
+}
+
+.code-panel .hljs-keyword,
+.code-panel .hljs-title.function_ {
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+.code-panel .hljs-string {
+  color: #fde68a;
+}
+
+.code-panel .hljs-comment {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.code-panel .hljs-literal {
+  color: #c4b5fd;
+  font-weight: 650;
+}
+
+.code-panel .hljs-number {
+  color: #86efac;
+}
+
+.code-panel .hljs-attr,
+.code-panel .hljs-property {
+  color: #67e8f9;
 }
 
 .diff-panel {
@@ -306,7 +338,7 @@ a:focus-visible {
   margin: 0;
   padding: 12px;
   font:
-    13px/1.55 "SFMono-Regular",
+    13px/1.32 "SFMono-Regular",
     Consolas,
     "Liberation Mono",
     monospace;
