@@ -20,7 +20,7 @@ description: 创建或准备 release 前使用，检查 release contract、quali
 7. 确认每个用户可见 feature 都有 E2E acceptance evidence。除非 feature 不是用户可见行为且例外已记录，否则 unit tests alone 不足以发布。
 8. 确认 release features 的 benchmark evidence：benchmark question、metric、fixture、command 或 artifact、threshold、result、peer baseline 和 caveats。
 9. 确认 demo script 和 fixture repo。
-10. 确认 release 或 Ralph loop 完成后存在由 `html-work-reports` 生成或校验过的 self-contained HTML 变更汇报；默认路径为 `.agent-harness/reports/latest/change-report.html`。报告应保留同一组真实质量门禁、E2E/benchmark evidence、review focus、limitations 和 git 状态。如果未产出、未校验或 browser smoke 降级，必须把原因记录为 release readiness limitation。
+10. 确认 release、Ralph loop、跨模块实现、release readiness 复盘或用户要求的审查型交付完成后，存在由 `html-work-reports` 生成或校验过的 self-contained HTML 变更汇报；默认路径为 `.agent-harness/reports/latest/change-report.html`。报告应保留同一组真实质量门禁、E2E/benchmark evidence、review focus、limitations 和 git 状态。涉及代码 review 时必须直接贴出高亮代码/diff 证据；涉及系统位置、模块关系或数据流时必须包含已渲染 Mermaid 图或明确降级原因。如果未产出、未校验或 browser smoke 降级，必须把原因记录为 release readiness limitation。
 11. 产出 release readiness report：
 
 - scope status；

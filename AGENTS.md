@@ -133,7 +133,7 @@ bun run quality
 
 该 HTML report 是本地审查 artifact，不替代下面的 chat final report。最终回复必须给出 HTML report 路径，并继续提供简短 Review focus 和真实 quality gate 结果。
 
-默认使用 `.agents/skills/html-work-reports` 的结构化 JSON 输入、生成器和校验器产出报告。手写 HTML 只用于模板无法表达的例外，并且必须记录同等校验结果；浏览器校验不可用时要明确标为降级，不得写成通过。
+默认使用 `.agents/skills/html-work-reports` 的结构化 JSON 输入、生成器和校验器产出报告。触发范围包括：用户明确要求 HTML 汇报/报告/技术汇报/面试讲解页；release work、Ralph loop、跨多文件实现、跨模块重构、agent workflow/skill/规范更新后的交接；用户要求 review 核心逻辑、代码 walkthrough、系统位置图或复杂 evidence 说明。面向代码 review 的 HTML report 必须直接贴出需要 reviewer 重点看的代码片段或 diff，并启用代码高亮和关键行标注；涉及系统位置、模块关系或数据流时必须提供已渲染 Mermaid 图和 source fallback。手写 HTML 只用于模板无法表达的例外，并且必须记录同等校验结果；浏览器校验不可用时要明确标为降级，不得写成通过。若本仓库 skill 缺少 Mermaid 渲染、代码高亮或 source fallback 能力，先从 `D:\skill-hub` 对照或拉取 `html-work-reports` 组件后再交付。
 
 ```md
 ## Completed

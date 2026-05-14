@@ -101,6 +101,19 @@ agent 在代码或文档变更后暂停给人工 review 时，报告必须围绕
 
 仓库已提供 `html-work-reports` skill 作为默认生成路径。优先用结构化 JSON 输入驱动 `.agents/skills/html-work-reports/scripts/create-report.mjs`，再用 `.agents/skills/html-work-reports/scripts/validate-html-report.mjs` 校验。手写 HTML 只作为特殊视觉例外，且仍需保留同等校验和降级说明。
 
+强制触发场景：
+
+- 用户明确要求 HTML 汇报、HTML report、工作报告、review report、技术汇报、面试讲解页、architecture walkthrough、status dashboard 或轻量导出页；
+- release work、Ralph loop、跨多文件实现、跨模块重构、agent workflow 更新、skill 更新、规范/流程更新完成后需要交接；
+- 用户要求说明“review 哪些核心逻辑”“面试被问到怎么讲”“当前改动在系统中的位置”“代码 walkthrough”；
+- 交付需要直接查看代码片段、diff、trace、report、E2E/benchmark evidence、Mermaid 架构图或长表格。
+
+建议触发场景：
+
+- 调研、spec、alignment brief、release contract、readiness gap list 或 implementation stories 需要可视化审查；
+- Markdown 回复会包含长 Mermaid、长代码、长表格、多段 evidence 或复杂取舍矩阵；
+- 需要保留 source fallback，方便 reviewer 在浏览器中复核结论来源。
+
 默认路径：
 
 ```txt
@@ -118,6 +131,8 @@ HTML 变更汇报必须包含：
 - 本次目标和 scope；
 - what / why / how 变更点；
 - review focus 表格，含 repo-relative `file:line`；
+- 需要 reviewer 直接审查的决定性代码片段或 diff，不能只给文件路径或摘要；
+- 当前改动在系统中的位置、模块关系或关键数据流；涉及多模块或跨边界逻辑时必须使用已渲染 Mermaid 图表达；
 - 已运行命令和真实结果；
 - E2E、benchmark 或 browser evidence，若适用；
 - 已知限制、未运行项和下一步；
@@ -129,7 +144,9 @@ HTML 变更汇报必须包含：
 - 报告正文默认中文；代码标识符、命令、路径、API、外部项目名和引用标题保留原文。
 - 报告优先从结构化输入渲染；HTML 不重新计算 pass/fail，不隐藏 JSON、Markdown、chat final report 或质量门禁中的失败项。
 - 代码证据必须包含 repo-relative `file:line`、决定性片段或 diff、review focus 和验证含义。
-- Mermaid、Markdown、code 和 diff 默认预渲染；runtime mode 必须 pin 依赖并保留 source fallback。
+- 代码证据必须直接出现在 HTML 中，并使用 code/diff section 的静态高亮和关键行标注；面向 review 的报告不得只用路径表替代代码证据。
+- Mermaid、Markdown、code 和 diff 默认预渲染；Mermaid 必须渲染为 inline SVG 或在报告中明确记录降级原因，runtime mode 必须 pin 依赖并保留 source fallback。
+- 如果本仓库 `html-work-reports` skill 缺少 Mermaid 渲染、代码高亮或 source fallback 能力，先对照或拉取 `D:\skill-hub` 的 `html-work-reports` 组件，再交付报告。
 - 报告内容不得声称未运行的 E2E、benchmark、browser smoke 或 quality gate 已通过。
 - 报告默认使用 repo-relative path；不得写入 secret、token-looking value、用户主目录或与审查无关的本机私有路径。
 - 如果 HTML 汇报本身包含交互控件或复杂布局，必须做 browser smoke 或记录未运行、降级或不可用原因。

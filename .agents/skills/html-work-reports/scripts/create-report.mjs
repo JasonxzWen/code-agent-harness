@@ -282,6 +282,10 @@ function highlightLine(line, language) {
       '<span class="hljs-keyword">$1</span>'
     );
     html = html.replace(
+      /(<span class="hljs-keyword">function<\/span>\s+)([A-Za-z_$][\w$]*)/g,
+      '$1<span class="hljs-title function_">$2</span>'
+    );
+    html = html.replace(
       /(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;|`[^`]*?`)/g,
       '<span class="hljs-string">$1</span>'
     );
