@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML 工作汇报"
+  short_description: "生成并验证自包含 HTML 交接报告。"
+  default_prompt: "对已完成的结论、汇报、计划、review、explainer、dashboard 或轻量 editor artifact 使用 $html-work-reports。"

@@ -45,4 +45,5 @@
 [ ] release readiness gap list updated if release criteria changed
 [ ] final report explains what changed, why, and how with file:line references
 [ ] self-contained HTML change report created for release work, Ralph loop, multi-file implementation, or user-requested HTML handoff
+[ ] HTML change report generated or validated with html-work-reports; browser check pass or degradation recorded
 ```
