@@ -99,6 +99,8 @@ agent 在代码或文档变更后暂停给人工 review 时，报告必须围绕
 
 当完成 release work、Ralph loop、跨多文件实现、用户明确要求 HTML 汇报，或变更需要人工长时间 review 时，agent 必须额外产出 self-contained HTML 变更汇报。它用于本地审查，不替代 chat final report、release note、PR description 或机器可读 eval report。
 
+仓库已提供 `html-work-reports` skill 作为默认生成路径。优先用结构化 JSON 输入驱动 `.agents/skills/html-work-reports/scripts/create-report.mjs`，再用 `.agents/skills/html-work-reports/scripts/validate-html-report.mjs` 校验。手写 HTML 只作为特殊视觉例外，且仍需保留同等校验和降级说明。
+
 默认路径：
 
 ```txt
@@ -125,9 +127,12 @@ HTML 变更汇报必须包含：
 
 - 报告必须是自包含静态 HTML，默认不依赖外部 CSS、JS、image 或 hosted service。
 - 报告正文默认中文；代码标识符、命令、路径、API、外部项目名和引用标题保留原文。
+- 报告优先从结构化输入渲染；HTML 不重新计算 pass/fail，不隐藏 JSON、Markdown、chat final report 或质量门禁中的失败项。
+- 代码证据必须包含 repo-relative `file:line`、决定性片段或 diff、review focus 和验证含义。
+- Mermaid、Markdown、code 和 diff 默认预渲染；runtime mode 必须 pin 依赖并保留 source fallback。
 - 报告内容不得声称未运行的 E2E、benchmark、browser smoke 或 quality gate 已通过。
 - 报告默认使用 repo-relative path；不得写入 secret、token-looking value、用户主目录或与审查无关的本机私有路径。
-- 如果 HTML 汇报本身包含交互控件或复杂布局，必须做 browser smoke 或记录未运行原因。
+- 如果 HTML 汇报本身包含交互控件或复杂布局，必须做 browser smoke 或记录未运行、降级或不可用原因。
 - final response 必须给出该 HTML 报告路径，并继续保留简短 Review focus 和质量门禁摘要，方便不打开浏览器的 reviewer 快速判断。
 
 ## Runtime contract 契约s

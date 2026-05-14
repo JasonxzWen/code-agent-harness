@@ -4,7 +4,13 @@
 
 ## [Unreleased]
 
-暂无未发布变更。
+### 新增
+
+- 新增项目本地 `html-work-reports` skill，包含自包含 HTML 工作汇报的生成器、校验器、模板、静态组件和结构化输入 schema。
+
+### 变更
+
+- 强化开发完成 HTML 变更汇报规范：默认使用生成器和 validator，要求 source-linked code evidence，并明确 browser smoke 降级不能写成通过。
 
 ## [0.3.0] - 2026-05-13
 

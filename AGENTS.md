@@ -133,6 +133,8 @@ bun run quality
 
 该 HTML report 是本地审查 artifact，不替代下面的 chat final report。最终回复必须给出 HTML report 路径，并继续提供简短 Review focus 和真实 quality gate 结果。
 
+默认使用 `.agents/skills/html-work-reports` 的结构化 JSON 输入、生成器和校验器产出报告。手写 HTML 只用于模板无法表达的例外，并且必须记录同等校验结果；浏览器校验不可用时要明确标为降级，不得写成通过。
+
 ```md
 ## Completed
 
